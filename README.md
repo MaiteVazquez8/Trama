@@ -219,7 +219,7 @@ La identidad combina colores naturales con una tipografía amigable, creando una
 
 </div>
 
-La paleta combina **tonos crema, beige y verdes inspirados en la naturaleza**, mientras que el negro y el blanco funcionan como colores neutros para generar contraste y equilibrio.
+La paleta combina **cremas y verdes inspirados en la naturaleza**, utilizando negro y blanco como colores neutros para generar contraste.
 
 ---
 
