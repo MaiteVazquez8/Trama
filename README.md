@@ -99,39 +99,44 @@ La identidad de **Trama** está inspirada en la naturaleza, el reciclaje y el tr
 
 ### Paleta de colores
 
+La identidad visual de **Trama** utiliza una paleta inspirada en la naturaleza, el reciclaje y el cuidado del ambiente.
+
 <table>
-  <tr>
-    <td align="center">
-      <div style="background-color:#FBF5DD;width:80px;height:40px;"></div>
-      <code>#FBF5DD</code><br>
-      Crema
-    </td>
-    <td align="center">
-      <div style="background-color:#E7E1B1;width:80px;height:40px;"></div>
-      <code>#E7E1B1</code><br>
-      Beige
-    </td>
-    <td align="center">
-      <div style="background-color:#306D29;width:80px;height:40px;"></div>
-      <code>#306D29</code><br>
-      Verde
-    </td>
-    <td align="center">
-      <div style="background-color:#0D530E;width:80px;height:40px;"></div>
-      <code>#0D530E</code><br>
-      Verde oscuro
-    </td>
-    <td align="center">
-      <div style="background-color:#000000;width:80px;height:40px;"></div>
-      <code>#000000</code><br>
-      Negro
-    </td>
-    <td align="center">
-      <div style="background-color:#FFFFFF;width:80px;height:40px;border:1px solid #ddd;"></div>
-      <code>#FFFFFF</code><br>
-      Blanco
-    </td>
-  </tr>
+<tr>
+<th>Color</th>
+<th>HEX</th>
+<th>RGB</th>
+</tr>
+<tr>
+<td><img src="https://singlecolorimage.com/get/FBF5DD/80x40"></td>
+<td><code>#FBF5DD</code></td>
+<td>251, 245, 221</td>
+</tr>
+<tr>
+<td><img src="https://singlecolorimage.com/get/E7E1B1/80x40"></td>
+<td><code>#E7E1B1</code></td>
+<td>231, 225, 177</td>
+</tr>
+<tr>
+<td><img src="https://singlecolorimage.com/get/306D29/80x40"></td>
+<td><code>#306D29</code></td>
+<td>48, 109, 41</td>
+</tr>
+<tr>
+<td><img src="https://singlecolorimage.com/get/0D530E/80x40"></td>
+<td><code>#0D530E</code></td>
+<td>13, 83, 14</td>
+</tr>
+<tr>
+<td><img src="https://singlecolorimage.com/get/000000/80x40"></td>
+<td><code>#000000</code></td>
+<td>0, 0, 0</td>
+</tr>
+<tr>
+<td><img src="https://singlecolorimage.com/get/FFFFFF/80x40"></td>
+<td><code>#FFFFFF</code></td>
+<td>255, 255, 255</td>
+</tr>
 </table>
 
 ### Tipografía
