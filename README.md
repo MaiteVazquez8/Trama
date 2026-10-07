@@ -1,18 +1,26 @@
+<div align="center">
+
 # TRAMA
 
 ### Cooperativa escolar para la separación y gestión responsable de residuos
 
-**Trama** es una cooperativa escolar creada para promover la separación de residuos dentro de la escuela y generar hábitos más responsables con el ambiente.
+**Organización · Concientización · Participación · Ambiente**
 
-El proyecto combina **organización, concientización, registro y participación**, utilizando herramientas digitales para facilitar la gestión de la cooperativa y el seguimiento de las actividades.
+</div>
 
 ---
 
 ## Sobre Trama
 
+**Trama** es una cooperativa escolar creada para promover la separación de residuos dentro de la escuela y generar hábitos más responsables con el ambiente.
+
+El proyecto combina **organización, concientización, registro y participación**, utilizando herramientas digitales para facilitar la gestión de la cooperativa y el seguimiento de sus actividades.
+
+### ¿De dónde surge?
+
 Trama surge a partir de una problemática cotidiana dentro de la escuela: la dificultad para separar correctamente los residuos y la falta de información sobre qué sucede con los materiales después de ser descartados.
 
-A partir de esta situación, se propone crear una cooperativa que involucre a estudiantes y a la comunidad educativa en un sistema organizado de separación, registro y concientización.
+A partir de esta situación, se propone crear una cooperativa que involucre a estudiantes y a toda la comunidad educativa en un sistema organizado de separación, registro y concientización.
 
 El nombre **Trama** representa la idea de una red formada por distintas personas que trabajan juntas para alcanzar un objetivo común.
 
@@ -22,135 +30,232 @@ El proyecto también contempla el trabajo conjunto con una **cooperativa externa
 
 ## Cómo funciona
 
-El funcionamiento de Trama se basa en diferentes etapas:
+El funcionamiento de Trama se organiza en **seis etapas principales**:
 
-**Separar**  
-Los residuos se depositan en tachos diferenciados según el tipo de material.
+<div align="center">
 
-**Concientizar**  
-Se realizan campañas, carteles y actividades para enseñar a la comunidad educativa cómo separar correctamente.
+| ETAPA | DESCRIPCIÓN |
+|:---:|---|
+| **SEPARAR** | Los residuos se depositan en tachos diferenciados según el tipo de material. |
+| **CONCIENTIZAR** | Se realizan campañas, carteles y actividades para enseñar a separar correctamente. |
+| **REGISTRAR** | Se registran materiales, cantidades, ubicaciones y posibles problemas de separación. |
+| **ORGANIZAR** | Las diferentes comisiones coordinan tareas, reuniones, mantenimiento y actividades. |
+| **ENTREGAR** | Los materiales separados son entregados a la cooperativa externa para su clasificación y tratamiento. |
+| **EVALUAR** | Se analizan los resultados para detectar problemas y mejorar el sistema. |
 
-**Registrar**  
-Se registran los materiales recolectados, cantidades, ubicaciones y posibles problemas de separación.
-
-**Organizar**  
-Las diferentes comisiones de la cooperativa coordinan tareas, reuniones, mantenimiento y actividades.
-
-**Entregar**  
-Los materiales separados son entregados a la cooperativa externa para su clasificación y posterior tratamiento.
-
-**Evaluar**  
-Se analizan los resultados para conocer la participación, detectar problemas y mejorar el sistema.
+</div>
 
 ---
 
 ## Organización de la cooperativa
 
-Trama se organiza mediante diferentes comisiones:
+Trama se organiza mediante diferentes comisiones. Cada una tiene responsabilidades específicas para mantener el funcionamiento del proyecto.
 
-| Comisión | Función |
-|---|---|
-| Organización | Coordina las actividades y el funcionamiento general. |
-| Concientización | Desarrolla campañas y materiales informativos. |
-| Mantenimiento | Controla los tachos y la señalización. |
-| Registro | Registra los residuos y los datos del proyecto. |
-| Vinculación | Mantiene el contacto con la cooperativa externa. |
+<div align="center">
+
+| COMISIÓN | FUNCIÓN |
+|:---:|---|
+| **Organización** | Coordina las actividades y el funcionamiento general de la cooperativa. |
+| **Concientización** | Desarrolla campañas y materiales informativos. |
+| **Mantenimiento** | Controla los tachos, la señalización y su estado. |
+| **Registro** | Registra los residuos y los datos obtenidos durante el proyecto. |
+| **Vinculación** | Mantiene el contacto y coordina las entregas con la cooperativa externa. |
+
+</div>
 
 ---
 
 # Plataforma digital
 
-Para acompañar el funcionamiento de la cooperativa, Trama cuenta con dos herramientas digitales:
+La plataforma digital de Trama acompaña el funcionamiento de la cooperativa mediante **dos herramientas complementarias**.
 
-### Página web
+## Página web
 
 La página web está orientada principalmente a la **organización y gestión**.
 
-Permite administrar usuarios, comisiones, tareas, registros, campañas, reuniones, acuerdos, entregas y estadísticas.
+Permite administrar:
 
-También funciona como espacio de presentación del proyecto, donde se puede conocer qué es Trama, su misión, visión y valores.
+<div align="center">
 
-### Aplicación móvil
+| GESTIÓN | |
+|:---|:---:|
+| Usuarios | Comisiones |
+| Tareas | Registros de residuos |
+| Campañas | Reuniones |
+| Acuerdos | Entregas |
+| Estadísticas | Tachos |
+| Notificaciones | Reportes |
+
+</div>
+
+También funciona como espacio de presentación del proyecto, donde se puede conocer qué es Trama, su misión, visión, valores y objetivos.
+
+## Aplicación móvil
 
 La aplicación móvil está pensada para las **acciones cotidianas de los integrantes**.
 
-Permite acceder rápidamente a tareas, registrar residuos, reportar problemas, consultar campañas, revisar notificaciones y acceder a información del proyecto desde el celular.
+Permite acceder rápidamente desde el celular a funcionalidades como:
 
-La web y la aplicación utilizan la misma información y forman parte de un mismo sistema.
+<div align="center">
+
+| ACCIONES |
+|:---:|
+| Registrar residuos |
+| Consultar tareas |
+| Reportar problemas |
+| Consultar campañas |
+| Revisar notificaciones |
+| Consultar información del proyecto |
+| Participar en actividades |
+
+</div>
+
+La web y la aplicación utilizan la **misma información** y forman parte de un mismo sistema.
 
 ---
 
 ## Objetivos
 
-- Mejorar la separación de residuos dentro de la escuela.
-- Reducir la cantidad de residuos mezclados.
-- Promover hábitos responsables con el ambiente.
-- Concientizar a la comunidad educativa.
-- Organizar el trabajo de la cooperativa.
-- Registrar y analizar los materiales recolectados.
-- Fortalecer el vínculo con cooperativas externas.
-- Utilizar herramientas digitales para facilitar la gestión.
+<div align="center">
+
+| OBJETIVO | PROPÓSITO |
+|:---:|---|
+| **Separación** | Mejorar la separación de residuos dentro de la escuela. |
+| **Reducción** | Disminuir la cantidad de residuos mezclados. |
+| **Concientización** | Promover hábitos responsables con el ambiente. |
+| **Participación** | Involucrar a estudiantes y a la comunidad educativa. |
+| **Organización** | Facilitar el trabajo de las diferentes comisiones. |
+| **Registro** | Registrar y analizar los materiales recolectados. |
+| **Vinculación** | Fortalecer el vínculo con cooperativas externas. |
+| **Tecnología** | Utilizar herramientas digitales para facilitar la gestión. |
+
+</div>
 
 ---
 
-## Identidad visual
+# Identidad visual
 
-La identidad de **Trama** está inspirada en la naturaleza, el reciclaje y el trabajo colectivo. Utiliza colores naturales y una tipografía amigable para transmitir cercanía, responsabilidad y compromiso ambiental.
+La identidad de **Trama** está inspirada en la naturaleza, el reciclaje y el trabajo colectivo.
+
+La propuesta visual busca transmitir:
 
 <div align="center">
 
-### Paleta de colores
+**CERCANÍA** · **RESPONSABILIDAD** · **COLABORACIÓN** · **COMPROMISO**
 
-La identidad visual de **Trama** utiliza una paleta inspirada en la naturaleza, el reciclaje y el cuidado del ambiente.
+</div>
+
+La identidad combina colores naturales con una tipografía amigable, creando una imagen sencilla, reconocible y relacionada con el cuidado del ambiente.
+
+---
+
+## Paleta de colores
+
+<div align="center">
 
 <table align="center">
 <tr>
 <th>Color</th>
+<th>Muestra</th>
 <th>HEX</th>
 <th>RGB</th>
 </tr>
+
 <tr>
-<td><img src="https://singlecolorimage.com/get/FBF5DD/80x40"></td>
+<td><b>Crema</b></td>
+<td>
+<img src="https://img.shields.io/badge/-%20-FBF5DD?style=for-the-badge">
+</td>
 <td><code>#FBF5DD</code></td>
 <td>251, 245, 221</td>
 </tr>
+
 <tr>
-<td><img src="https://singlecolorimage.com/get/E7E1B1/80x40"></td>
+<td><b>Beige</b></td>
+<td>
+<img src="https://img.shields.io/badge/-%20-E7E1B1?style=for-the-badge">
+</td>
 <td><code>#E7E1B1</code></td>
 <td>231, 225, 177</td>
 </tr>
+
 <tr>
-<td><img src="https://singlecolorimage.com/get/306D29/80x40"></td>
+<td><b>Verde</b></td>
+<td>
+<img src="https://img.shields.io/badge/-%20-306D29?style=for-the-badge">
+</td>
 <td><code>#306D29</code></td>
 <td>48, 109, 41</td>
 </tr>
+
 <tr>
-<td><img src="https://singlecolorimage.com/get/0D530E/80x40"></td>
+<td><b>Verde oscuro</b></td>
+<td>
+<img src="https://img.shields.io/badge/-%20-0D530E?style=for-the-badge">
+</td>
 <td><code>#0D530E</code></td>
 <td>13, 83, 14</td>
 </tr>
+
 <tr>
-<td><img src="https://singlecolorimage.com/get/000000/80x40"></td>
+<td><b>Negro</b></td>
+<td>
+<img src="https://img.shields.io/badge/-%20-000000?style=for-the-badge">
+</td>
 <td><code>#000000</code></td>
 <td>0, 0, 0</td>
 </tr>
+
 <tr>
-<td><img src="https://singlecolorimage.com/get/FFFFFF/80x40"></td>
+<td><b>Blanco</b></td>
+<td>
+<img src="https://img.shields.io/badge/-%20-FFFFFF?style=for-the-badge">
+</td>
 <td><code>#FFFFFF</code></td>
 <td>255, 255, 255</td>
 </tr>
+
 </table>
 
 </div>
 
-### Tipografía
-
-**Nunito Sans** es la tipografía principal de Trama. Su estilo simple, moderno y amigable facilita la lectura y refuerza la cercanía de la identidad.
+La paleta combina **tonos crema, beige y verdes inspirados en la naturaleza**, mientras que el negro y el blanco funcionan como colores neutros para generar contraste y equilibrio.
 
 ---
 
-## Propósito
+## Tipografía
+
+<div align="center">
+
+### Nunito Sans
+
+**Simple · Moderna · Amigable · Legible**
+
+</div>
+
+**Nunito Sans** es la tipografía principal de Trama. Su estilo simple, moderno y amigable facilita la lectura y refuerza la cercanía de la identidad visual.
+
+---
+
+# Propósito
 
 Trama busca demostrar que el cuidado del ambiente también puede construirse desde la escuela.
 
 La propuesta combina **participación, organización, educación y tecnología** para transformar una problemática cotidiana en una oportunidad para generar hábitos más responsables y sostenibles.
+
+<div align="center">
+
+### Una acción individual puede parecer pequeña.  
+### Cuando se convierte en una trama, puede generar un cambio.
+
+</div>
+
+---
+
+<div align="center">
+
+**TRAMA**
+
+*Cooperativa escolar para la separación y gestión responsable de residuos.*
+
+</div>
