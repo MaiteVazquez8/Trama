@@ -35,7 +35,7 @@ El funcionamiento de Trama se organiza en **seis etapas principales**:
 <div align="center">
 
 | ETAPA | DESCRIPCIÓN |
-|:---:|---|
+| :---: | :--- |
 | **SEPARAR** | Los residuos se depositan en tachos diferenciados según el tipo de material. |
 | **CONCIENTIZAR** | Se realizan campañas, carteles y actividades para enseñar a separar correctamente. |
 | **REGISTRAR** | Se registran materiales, cantidades, ubicaciones y posibles problemas de separación. |
@@ -54,7 +54,7 @@ Trama se organiza mediante diferentes comisiones. Cada una tiene responsabilidad
 <div align="center">
 
 | COMISIÓN | FUNCIÓN |
-|:---:|---|
+| :---: | :--- |
 | **Organización** | Coordina las actividades y el funcionamiento general de la cooperativa. |
 | **Concientización** | Desarrolla campañas y materiales informativos. |
 | **Mantenimiento** | Controla los tachos, la señalización y su estado. |
@@ -71,14 +71,14 @@ La plataforma digital de Trama acompaña el funcionamiento de la cooperativa med
 
 ## Página web
 
-La página web está orientada principalmente a la **organización y gestión**.
+La página web está orientada principalmente a la **organización y gestión** de la cooperativa.
 
-Permite administrar:
+Permite administrar diferentes aspectos del proyecto:
 
 <div align="center">
 
-| GESTIÓN | |
-|:---|:---:|
+| GESTIÓN | GESTIÓN |
+| :---: | :---: |
 | Usuarios | Comisiones |
 | Tareas | Registros de residuos |
 | Campañas | Reuniones |
@@ -99,7 +99,7 @@ Permite acceder rápidamente desde el celular a funcionalidades como:
 <div align="center">
 
 | ACCIONES |
-|:---:|
+| :---: |
 | Registrar residuos |
 | Consultar tareas |
 | Reportar problemas |
@@ -119,7 +119,7 @@ La web y la aplicación utilizan la **misma información** y forman parte de un 
 <div align="center">
 
 | OBJETIVO | PROPÓSITO |
-|:---:|---|
+| :---: | :--- |
 | **Separación** | Mejorar la separación de residuos dentro de la escuela. |
 | **Reducción** | Disminuir la cantidad de residuos mezclados. |
 | **Concientización** | Promover hábitos responsables con el ambiente. |
@@ -141,7 +141,7 @@ La propuesta visual busca transmitir:
 
 <div align="center">
 
-**CERCANÍA** · **RESPONSABILIDAD** · **COLABORACIÓN** · **COMPROMISO**
+**CERCANÍA · RESPONSABILIDAD · COLABORACIÓN · COMPROMISO**
 
 </div>
 
@@ -153,73 +153,18 @@ La identidad combina colores naturales con una tipografía amigable, creando una
 
 <div align="center">
 
-<table align="center">
-<tr>
-<th>Color</th>
-<th>Muestra</th>
-<th>HEX</th>
-<th>RGB</th>
-</tr>
-
-<tr>
-<td><b>Crema</b></td>
-<td>
-<img src="https://img.shields.io/badge/-%20-FBF5DD?style=for-the-badge">
-</td>
-<td><code>#FBF5DD</code></td>
-<td>251, 245, 221</td>
-</tr>
-
-<tr>
-<td><b>Beige</b></td>
-<td>
-<img src="https://img.shields.io/badge/-%20-E7E1B1?style=for-the-badge">
-</td>
-<td><code>#E7E1B1</code></td>
-<td>231, 225, 177</td>
-</tr>
-
-<tr>
-<td><b>Verde</b></td>
-<td>
-<img src="https://img.shields.io/badge/-%20-306D29?style=for-the-badge">
-</td>
-<td><code>#306D29</code></td>
-<td>48, 109, 41</td>
-</tr>
-
-<tr>
-<td><b>Verde oscuro</b></td>
-<td>
-<img src="https://img.shields.io/badge/-%20-0D530E?style=for-the-badge">
-</td>
-<td><code>#0D530E</code></td>
-<td>13, 83, 14</td>
-</tr>
-
-<tr>
-<td><b>Negro</b></td>
-<td>
-<img src="https://img.shields.io/badge/-%20-000000?style=for-the-badge">
-</td>
-<td><code>#000000</code></td>
-<td>0, 0, 0</td>
-</tr>
-
-<tr>
-<td><b>Blanco</b></td>
-<td>
-<img src="https://img.shields.io/badge/-%20-FFFFFF?style=for-the-badge">
-</td>
-<td><code>#FFFFFF</code></td>
-<td>255, 255, 255</td>
-</tr>
-
-</table>
+| COLOR | MUESTRA | HEX | RGB |
+| :---: | :---: | :---: | :---: |
+| **Crema** | ![#FBF5DD](https://img.shields.io/badge/-%20-FBF5DD?style=for-the-badge) | `#FBF5DD` | 251, 245, 221 |
+| **Beige** | ![#E7E1B1](https://img.shields.io/badge/-%20-E7E1B1?style=for-the-badge) | `#E7E1B1` | 231, 225, 177 |
+| **Verde** | ![#306D29](https://img.shields.io/badge/-%20-306D29?style=for-the-badge) | `#306D29` | 48, 109, 41 |
+| **Verde oscuro** | ![#0D530E](https://img.shields.io/badge/-%20-0D530E?style=for-the-badge) | `#0D530E` | 13, 83, 14 |
+| **Negro** | ![#000000](https://img.shields.io/badge/-%20-000000?style=for-the-badge) | `#000000` | 0, 0, 0 |
+| **Blanco** | ![#FFFFFF](https://img.shields.io/badge/-%20-FFFFFF?style=for-the-badge) | `#FFFFFF` | 255, 255, 255 |
 
 </div>
 
-La paleta combina **cremas y verdes inspirados en la naturaleza**, utilizando negro y blanco como colores neutros para generar contraste.
+La paleta combina **cremas y verdes inspirados en la naturaleza**, mientras que el negro y el blanco funcionan como colores neutros para generar contraste y equilibrio.
 
 ---
 
@@ -245,14 +190,11 @@ La propuesta combina **participación, organización, educación y tecnología**
 
 <div align="center">
 
-### Una acción individual puede parecer pequeña.  
+### Una acción individual puede parecer pequeña.
+
 ### Cuando se convierte en una trama, puede generar un cambio.
 
-</div>
-
----
-
-<div align="center">
+<br>
 
 **TRAMA**
 
