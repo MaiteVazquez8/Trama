@@ -93,19 +93,50 @@ La web y la aplicación utilizan la misma información y forman parte de un mism
 
 ---
 
-## Identidad
+## Identidad visual
 
-La identidad visual de Trama está inspirada en la **naturaleza, el reciclaje y el trabajo colectivo**.
+La identidad de **Trama** está inspirada en la naturaleza, el reciclaje y el trabajo colectivo. Utiliza colores naturales y una tipografía amigable para transmitir cercanía, responsabilidad y compromiso ambiental.
 
-### Paleta
+### Paleta de colores
 
-`#FBF5DD` · `#E7E1B1` · `#306D29` · `#0D530E` · `#000000` · `#FFFFFF`
+<table>
+  <tr>
+    <td align="center">
+      <div style="background-color:#FBF5DD;width:80px;height:40px;"></div>
+      <code>#FBF5DD</code><br>
+      Crema
+    </td>
+    <td align="center">
+      <div style="background-color:#E7E1B1;width:80px;height:40px;"></div>
+      <code>#E7E1B1</code><br>
+      Beige
+    </td>
+    <td align="center">
+      <div style="background-color:#306D29;width:80px;height:40px;"></div>
+      <code>#306D29</code><br>
+      Verde
+    </td>
+    <td align="center">
+      <div style="background-color:#0D530E;width:80px;height:40px;"></div>
+      <code>#0D530E</code><br>
+      Verde oscuro
+    </td>
+    <td align="center">
+      <div style="background-color:#000000;width:80px;height:40px;"></div>
+      <code>#000000</code><br>
+      Negro
+    </td>
+    <td align="center">
+      <div style="background-color:#FFFFFF;width:80px;height:40px;border:1px solid #ddd;"></div>
+      <code>#FFFFFF</code><br>
+      Blanco
+    </td>
+  </tr>
+</table>
 
 ### Tipografía
 
-**Nunito Sans**
-
-La identidad busca transmitir una imagen cercana, natural, responsable y colaborativa.
+**Nunito Sans** es la tipografía principal de Trama. Su estilo simple, moderno y amigable facilita la lectura y refuerza la cercanía de la identidad.
 
 ---
 
