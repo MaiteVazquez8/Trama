@@ -97,11 +97,13 @@ La web y la aplicación utilizan la misma información y forman parte de un mism
 
 La identidad de **Trama** está inspirada en la naturaleza, el reciclaje y el trabajo colectivo. Utiliza colores naturales y una tipografía amigable para transmitir cercanía, responsabilidad y compromiso ambiental.
 
+<div align="center">
+
 ### Paleta de colores
 
 La identidad visual de **Trama** utiliza una paleta inspirada en la naturaleza, el reciclaje y el cuidado del ambiente.
 
-<table>
+<table align="center">
 <tr>
 <th>Color</th>
 <th>HEX</th>
@@ -138,6 +140,8 @@ La identidad visual de **Trama** utiliza una paleta inspirada en la naturaleza, 
 <td>255, 255, 255</td>
 </tr>
 </table>
+
+</div>
 
 ### Tipografía
 
