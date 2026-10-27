@@ -201,3 +201,101 @@ La propuesta combina **participación, organización, educación y tecnología**
 *Cooperativa escolar para la separación y gestión responsable de residuos.*
 
 </div>
+
+---
+
+# Plataforma digital implementada (primera versión)
+
+Esta es la primera versión funcional del sistema web de Trama, desarrollada con **Vue 3**, **Vue Router** y **Vite**, con integración preparada para **Supabase** como backend administrado.
+
+## Funcionalidades incluidas
+
+| Área | Funcionalidades |
+| :--- | :--- |
+| Acceso | Inicio público, inicio de sesión, registro de usuarios, recuperación de contraseña (pendiente). |
+| Panel principal | Resumen con los 4 KPI de Trama y accesos rápidos a las funciones principales. |
+| Registro de residuos | Crear, consultar (historial con búsqueda y filtros), editar y cancelar lógicamente registros de materiales recolectados. |
+| Clasificación de materiales | Catálogo de tipos de residuo (papel/cartón, plásticos, vidrio, metales, orgánico, residuos comunes). |
+| Seguimiento de actividades | Tareas (crear, editar, completar, reabrir, cancelar), campañas, reuniones, acuerdos y entregas a la cooperativa externa. |
+| Participación | Actividades de separación/concientización/recolección con conteo de participantes. |
+| Indicadores y estadísticas | 4 KPI con meta, resultado, estado (cumplido/no cumplido), fórmula, fuente y responsable: materiales recuperados, residuos correctamente separados, tareas a tiempo y estudiantes participantes. |
+| Administración | Gestión de usuarios (crear, editar, activar/desactivar) y comisiones (solo administrador). |
+| Cuenta | Perfil del usuario con edición de datos y configuración del sistema. |
+
+## Pantallas y navegación
+
+La navegación se adapta al rol del usuario (`administrador`, `integrante`, `comunidad`). Las rutas principales son:
+
+- `/` — Inicio público (presentación del proyecto, cómo funciona, comisiones, objetivos).
+- `/login` — Inicio de sesión.
+- `/registro` — Registro de usuario.
+- `/panel` — Panel principal con KPI y accesos rápidos.
+- `/historial-residuos` — Historial de registros de residuos (buscar, filtrar, editar, cancelar).
+- `/residuos/nuevo` y `/residuos/:id/editar` — Formulario de registro de residuos.
+- `/tareas` — Listado de tareas con filtros.
+- `/tachos` — Catálogo de tachos (solo admin crea/edita).
+- `/campañas`, `/reuniones`, `/acuerdos`, `/entregas` — Listados y gestión.
+- `/estadisticas` — Tablero de los 4 KPI de Trama.
+- `/usuarios` y `/comisiones` — Administración (solo administrador).
+- `/perfil` — Datos del usuario logueado.
+- `/configuracion` — Información de conexión, roles y conservación del historial.
+
+## Roles y permisos
+
+Se implementaron tres roles reales:
+
+- **Administrador**: gestiona usuarios y comisiones, consulta y edita todos los registros.
+- **Integrante de la cooperativa**: registra residuos, gestiona tareas, campañas, entregas y su perfil.
+- **Comunidad educativa**: consulta información pública (inicio, tachos, campañas, resultados).
+
+Mientras Supabase no esté configurado, el acceso funciona en **modo desarrollo** con datos ficticios y sin sesión persistente real. Los roles se respetan en la interfaz, pero la autorización real se cumple mediante las políticas RLS de Supabase cuando se configura el backend.
+
+## Modelo de datos
+
+Se encuentra en `supabase/migrations/001_initial_schema.sql`. Incluye tablas para perfiles, comisiones, tipos de residuo, tachos, registros de residuos (con cancelación lógica), tareas (con cancelación lógica), campañas, reuniones, acuerdos, entregas, problemas de tacho y actividades, con claves primarias/foráneas, restricciones CHECK, índices y políticas RLS.
+
+## Variables de entorno
+
+Copiá `.env.example` a `.env` y completá:
+
+| Variable | Descripción |
+| :--- | :--- |
+| `VITE_SUPABASE_URL` | URL del proyecto de Supabase. |
+| `VITE_SUPABASE_ANON_KEY` | Clave pública (anon key) de Supabase (cliente, nunca service_role). |
+
+## Cómo ejecutar el frontend
+
+```bash
+# Instalar dependencias
+npm install
+
+# Ejecutar en modo desarrollo
+npm run dev
+
+# Build de producción
+npm run build
+
+# Vista previa del build
+npm run preview
+```
+
+## Cómo ejecutar las pruebas
+
+No hay suite de pruebas automatizada configurada en esta versión. La verificación se realizó manualmente: build de producción, navegación entre pantallas, validación de formularios, operaciones CRUD, búsquedas y filtros, adaptabilidad móvil, estados de carga/vacío/error y conexión a Supabase (pendiente de credenciales reales).
+
+## Persistencia
+
+Los datos se persisten en Supabase (backend administrado). Mientras no se configuren las variables de entorno, el sistema trabaja en modo desarrollo con **datos ficticios locales** (identificados como tal en la interfaz) y no hay persistencia real entre usuarios.
+
+Se utilizaron **cancelaciones lógicas** (estado `cancelado`/`cancelada`) para registros de residuos, tareas, usuarios y comisiones, conservando el historial en lugar de borrar físicamente.
+
+## Datos de prueba
+
+Los datos ficticios están en `src/mocks/datosPrueba.js` y se usan solo en modo desarrollo. No incluyen nombres de estudiantes ni datos personales reales. Son identificados visiblemente como datos de prueba en la interfaz.
+
+## Decisiones y limitaciones documentadas
+
+- La autenticación con Supabase requiere configurar `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY`. Sin ellas, el sistema funciona en modo desarrollo con datos ficticios.
+- No se incluyen claves `service_role` ni secretos en el frontend.
+- La aplicación móvil (mock) no se implementó en esta versión; se cubre la página web responsiva (escritorio y celular).
+- Algunas vistas (reuniones, entregas, acuerdos) tienen alcance de creación/consulta; la edición completa depende de las políticas RLS configuradas en Supabase.

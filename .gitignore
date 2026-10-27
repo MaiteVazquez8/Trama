@@ -1,0 +1,25 @@
+# Dependencias
+node_modules/
+
+# Salida de build
+dist/
+
+# Entorno local (no subir valores reales)
+.env
+.env.local
+.env.*.local
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Logs
+npm-debug.log*
