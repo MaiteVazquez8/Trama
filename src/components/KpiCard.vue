@@ -28,12 +28,12 @@ const clase = computed(() => props.cumplido ? 'badge-activo' : 'badge-pendiente'
 </script>
 
 <style scoped>
-.kpi-card { gap: 8px; }
-.etiqueta { font-size: 0.85rem; color: var(--color-texto-suave); }
-.valor { font-size: 1.75rem; font-weight: 800; color: var(--color-verde-oscuro); display: flex; align-items: baseline; gap: 4px; }
+.kpi-card { gap: 6px; }
+.etiqueta { font-size: 0.8rem; color: var(--texto-suave); font-weight: 700; }
+.valor { font-size: 1.75rem; font-weight: 800; color: var(--texto); display: flex; align-items: baseline; gap: 4px; }
 .valor.cumplido { color: var(--color-verde); }
-.valor.no-cumplido { color: var(--color-error); }
-.meta { font-size: 0.8rem; color: var(--color-texto-suave); margin-top: 4px; }
+.valor.no-cumplido { color: var(--error-texto); }
+.meta { font-size: 0.78rem; color: var(--texto-suave); margin-top: 4px; }
 .estado { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 0.78rem; }
-.rotulo { color: var(--color-texto-suave); }
+.rotulo { color: var(--texto-suave); }
 </style>

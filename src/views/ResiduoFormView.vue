@@ -1,15 +1,29 @@
 <template>
   <div class="form-page">
-    <div class="encabezado">
-      <h1>{{ esEditar ? 'Editar registro de residuos' : 'Registrar residuos' }}</h1>
-      <p>{{ esEditar ? 'Actualizá los datos del registro seleccionado.' : 'Cargá la información sobre los materiales recolectados.' }}</p>
-    </div>
+    <VistaEncabezado
+      :titulo="esEditar ? 'Editar registro de residuos' : 'Registro de residuos'"
+      :subtitulo="esEditar ? 'Actualizá los datos del registro seleccionado.' : 'Carga y seguimiento de materiales recuperados'"
+    >
+      <template #accion>
+        <button type="submit" form="residuo-form" class="btn btn-primary" :disabled="procesando">
+          {{ procesando ? 'Guardando…' : 'Guardar registro' }}
+        </button>
+      </template>
+    </VistaEncabezado>
 
     <Alerta v-if="errorGuardado" tipo="error" :mensaje="errorGuardado" />
     <Alerta v-if="mensajeExito" tipo="exito" :mensaje="mensajeExito" :duracion="4000" />
 
-    <form @submit.prevent="manejarGuardar" class="formulario" :class="{ 'en-proceso': procesando }">
-      <div class="form-row">
+    <div class="estadisticas-fila">
+      <TarjetaStat :texto="`${kgEsteMes} kg este mes`" />
+      <TarjetaStat :texto="`${totalRegistros} registros`" />
+      <TarjetaStat :texto="`${porcentajeCarton} % cartón`" />
+    </div>
+
+    <div class="contenido-doble">
+      <form id="residuo-form" @submit.prevent="manejarGuardar" class="card formulario" :class="{ 'en-proceso': procesando }">
+        <h2>{{ esEditar ? 'Editar registro' : 'Nuevo registro' }}</h2>
+
         <div class="grupo">
           <label class="etiqueta">Tipo de residuo <span class="requerido">*</span></label>
           <select v-model="form.tipoResiduo" class="entrada" :disabled="procesando">
@@ -19,50 +33,60 @@
           <span class="error" v-if="errores.tipoResiduo">{{ errores.tipoResiduo }}</span>
         </div>
 
-        <div class="grupo">
-          <label class="etiqueta">Cantidad (kg) <span class="requerido">*</span></label>
-          <input type="number" step="0.01" min="0" v-model.number="form.cantidadKg" placeholder="Ej: 3.5" class="entrada" :disabled="procesando" />
-          <span class="error" v-if="errores.cantidadKg">{{ errores.cantidadKg }}</span>
-        </div>
-      </div>
+        <div class="form-row">
+          <div class="grupo">
+            <label class="etiqueta">Peso (kg) <span class="requerido">*</span></label>
+            <input type="number" step="0.01" min="0" v-model.number="form.cantidadKg" placeholder="18,5" class="entrada" :disabled="procesando" />
+            <span class="error" v-if="errores.cantidadKg">{{ errores.cantidadKg }}</span>
+          </div>
 
-      <div class="form-row">
+          <div class="grupo">
+            <label class="etiqueta">Fecha <span class="requerido">*</span></label>
+            <input type="date" v-model="form.fecha" class="entrada" :disabled="procesando" :max="fechaMax" />
+            <span class="error" v-if="errores.fecha">{{ errores.fecha }}</span>
+          </div>
+        </div>
+
         <div class="grupo">
-          <label class="etiqueta">Lugar de recolección <span class="requerido">*</span></label>
-          <input type="text" v-model="form.lugar" placeholder="Ej: Patio central, Pasillo planta baja" class="entrada" :disabled="procesando" />
+          <label class="etiqueta">Origen <span class="requerido">*</span></label>
+          <input type="text" v-model="form.lugar" placeholder="Ej: Edificio principal" class="entrada" :disabled="procesando" />
           <span class="error" v-if="errores.lugar">{{ errores.lugar }}</span>
         </div>
 
         <div class="grupo">
-          <label class="etiqueta">Fecha <span class="requerido">*</span></label>
-          <input type="date" v-model="form.fecha" class="entrada" :disabled="procesando" :max="fechaMax" />
-          <span class="error" v-if="errores.fecha">{{ errores.fecha }}</span>
+          <label class="etiqueta">Registrado por</label>
+          <input type="text" :value="usuarioNombre" class="entrada" readonly />
         </div>
-      </div>
 
-      <div class="grupo">
-        <label class="etiqueta">Registrado por</label>
-        <input type="text" :value="usuarioNombre" class="entrada" readonly />
-      </div>
+        <div class="acciones">
+          <button type="button" class="btn btn-outline" @click="volver" :disabled="procesando">Volver al historial</button>
+          <button type="submit" class="btn btn-primary" :disabled="procesando">
+            {{ procesando ? 'Guardando…' : esEditar ? 'Actualizar registro' : 'Guardar registro' }}
+          </button>
+        </div>
+      </form>
 
-      <div class="acciones">
-        <button type="button" class="btn btn-outline" @click="volver" :disabled="procesando">Volver al historial</button>
-        <button type="submit" class="btn btn-primary" :disabled="procesando">
-          {{ procesando ? 'Guardando...' : esEditar ? 'Actualizar registro' : 'Registrar residuos' }}
-        </button>
-      </div>
-    </form>
+      <TarjetaDatos titulo="Registros recientes">
+        <p v-for="r in registrosRecientes" :key="r.id" class="item-datos">
+          <strong>{{ formatoFecha(r.fecha) }}</strong> {{ tipoNombre(r.tipoResiduo) }} · {{ Number(r.cantidadKg).toFixed(1) }} kg · {{ estadoLegible(r.estado) }}
+        </p>
+        <p v-if="registrosRecientes.length === 0" class="item-datos">Todavía no hay registros.</p>
+      </TarjetaDatos>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { inject } from 'vue'
 import { validar, requerido, numeroPositivo, fechaValida, seleccionValida } from '@/validations'
-import { registrosResiduoService, tiposResiduoService } from '@/services'
+import { registrosResiduoService, tiposResiduoService, estadisticasService } from '@/services'
 
 import Alerta from '@/components/Alerta.vue'
+import VistaEncabezado from '@/components/VistaEncabezado.vue'
+import TarjetaStat from '@/components/TarjetaStat.vue'
+import TarjetaDatos from '@/components/TarjetaDatos.vue'
 
 const auth = inject('auth')
 const router = useRouter()
@@ -81,6 +105,10 @@ const form = ref({
 })
 const errores = ref({})
 const tiposResiduo = ref([])
+const registrosRecientes = ref([])
+const totalRegistros = ref(0)
+const kgEsteMes = ref(0)
+const porcentajeCarton = ref(0)
 
 const fechaMax = computed(() => new Date().toISOString().split('T')[0])
 
@@ -94,13 +122,44 @@ const reglas = {
 }
 
 onMounted(async () => {
-  const r = await tiposResiduoService.listar()
-  if (r.exito) tiposResiduo.value = r.data
+  const [rTipos, rResumen, rListado] = await Promise.all([
+    tiposResiduoService.listar(),
+    estadisticasService.resumen(),
+    registrosResiduoService.listar(),
+  ])
+  if (rTipos.exito) tiposResiduo.value = rTipos.data
+  if (rResumen.exito) {
+    const d = rResumen.datos
+    kgEsteMes.value = Math.round(d.recuperadoKgMes || 0)
+    totalRegistros.value = d.totalRegistros || 0
+  }
+  if (rListado.exito) {
+    const lista = rListado.data || []
+    const activos = lista.filter((r) => r.estado === 'activo')
+    registrosRecientes.value = activos.slice(0, 3)
+    const deCarton = activos.filter((r) => r.tipoResiduo === 'tr-1').length
+    porcentajeCarton.value = activos.length ? Math.round((deCarton / activos.length) * 100) : 0
+  }
 
   if (esEditar.value) {
     cargarRegistro(route.params.id)
   }
 })
+
+function tipoNombre(id) {
+  const t = tiposResiduo.value.find((x) => x.id === id)
+  return t ? t.nombre : '—'
+}
+
+function estadoLegible(estado) {
+  return estado === 'activo' ? 'Activo' : 'Cancelado'
+}
+
+function formatoFecha(iso) {
+  if (!iso) return ''
+  const d = new Date(iso + 'T00:00:00')
+  return `${String(d.getDate()).padStart(2, '0')} ${d.toLocaleDateString('es-AR', { month: 'short' }).replace('.', '').toUpperCase()}`
+}
 
 async function cargarRegistro(id) {
   const r = await registrosResiduoService.obtener(id)
@@ -123,8 +182,8 @@ async function manejarGuardar() {
   if (!valido) return
 
   procesando.value = true
-  errorGuardado = null
-  mensajeExito = null
+  errorGuardado.value = null
+  mensajeExito.value = null
 
   try {
     if (esEditar.value) {
@@ -165,23 +224,29 @@ function volver() { router.push({ name: 'historial-residuos' }) }
 </script>
 
 <style scoped>
-.form-page { max-width: 640px; margin: 0 auto; padding: 0 20px; }
-.encabezado { margin-bottom: 24px; }
-.encabezado h1 { font-size: 1.75rem; margin: 0 0 6px 0; color: var(--color-verde-oscuro); }
-.encabezado p { margin: 0; color: var(--color-texto-suave); }
+.form-page { width: 100%; }
 
-.formulario { background: var(--color-blanco); border: 1px solid var(--color-borde); border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 18px; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formulario h2 { font-size: 1.05rem; }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .grupo { display: flex; flex-direction: column; gap: 6px; }
-.etiqueta { font-size: 0.9rem; font-weight: 700; color: var(--color-texto-suave); display: flex; align-items: center; gap: 6px; }
-.requerido { color: var(--color-error); font-size: 0.85rem; }
-.entrada { padding: 9px 12px; border: 1px solid var(--color-borde); border-radius: 6px; font-size: 0.95rem; background: var(--color-blanco); }
-.entrada:disabled { background: #F2EEE0; cursor: not-allowed; }
-.error { color: var(--color-error); font-size: 0.85rem; margin-top: 2px; }
+.etiqueta { font-size: 0.85rem; font-weight: 800; color: var(--texto-suave); display: flex; align-items: center; gap: 6px; }
+.requerido { color: var(--error-texto); font-size: 0.8rem; }
+.entrada { padding: 10px 14px; border: 1px solid var(--borde); border-radius: var(--radio-campo); font-size: 0.95rem; background: var(--fondo-tarjeta); color: var(--texto); }
+.entrada:focus { outline: none; border-color: var(--verde); }
+.entrada:disabled, .entrada[readonly] { background: var(--fondo-encabezado-tabla); cursor: not-allowed; }
+.error { color: var(--error-texto); font-size: 0.82rem; margin-top: 2px; }
 .acciones { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }
-.btn { padding: 10px 18px; font-size: 0.95rem; }
 
 @media (max-width: 600px) {
   .form-row { grid-template-columns: 1fr; }
+  .acciones { justify-content: stretch; flex-direction: column-reverse; }
+  .acciones .btn { width: 100%; }
 }
 </style>

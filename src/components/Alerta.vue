@@ -1,6 +1,6 @@
 <template>
   <div v-if="mensaje" class="alerta" :class="`alerta-${tipo}`" role="alert">
-    <span class="icono">{{ icono }}</span>
+    <span class="icono" v-html="icono"></span>
     <span>{{ mensaje }}</span>
   </div>
 </template>
@@ -8,19 +8,20 @@
 <script setup>
 import { computed } from 'vue'
 
+import { iconoDe } from './alertaIconos'
+
 const props = defineProps({
   mensaje: { type: String, default: '' },
   tipo: { type: String, default: 'info' },
   duracion: { type: Number, default: 4000 },
 })
 
-const iconos = { exito: '✅', error: '❌', info: 'ℹ️', cargando: '⏳' }
-const icono = computed(() => iconos[props.tipo] || 'ℹ️')
+const icono = computed(() => iconoDe(props.tipo))
 </script>
 
 <style scoped>
 .alerta {
-  border-radius: 6px;
+  border-radius: var(--radio-campo);
   padding: 10px 14px;
   font-size: 0.9rem;
   display: flex;
@@ -28,12 +29,13 @@ const icono = computed(() => iconos[props.tipo] || 'ℹ️')
   gap: 8px;
   margin-bottom: 14px;
   animation: aparecer 0.25s ease;
+  border: 1px solid transparent;
 }
-.alerta-exito { background-color: #E3F0DE; color: #1E4620; border: 1px solid #B9D8AE; }
-.alerta-error { background-color: #F7DEDE; color: #6E1818; border: 1px solid #D8A9A9; }
-.alerta-info { background-color: #FBF0DC; color: #7A4F00; border: 1px solid #E8C98E; }
-.alerta-cargando { background-color: #E8EEF5; color: #2F547A; border: 1px solid #C8D6E4; }
-.icono { line-height: 1; }
+.alerta-exito { background-color: var(--exito-fondo); color: var(--exito-texto); border-color: var(--exito-borde); }
+.alerta-error { background-color: var(--error-fondo); color: var(--error-texto); border-color: var(--error-borde); }
+.alerta-info { background-color: var(--aviso-fondo); color: var(--aviso-texto); border-color: var(--aviso-borde); }
+.alerta-cargando { background-color: var(--cargando-fondo); color: var(--cargando-texto); border-color: var(--cargando-borde); }
+.icono { line-height: 1; display: inline-flex; margin-top: 1px; }
 
 @keyframes aparecer {
   from { opacity: 0; transform: translateY(-6px); }

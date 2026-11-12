@@ -1,19 +1,44 @@
 <template>
   <div class="acuerdos">
-    <div class="encabezado">
-      <div>
-        <h1>Acuerdos</h1>
-        <p>Consultá los acuerdos tomados durante las reuniones, junto con las tareas que surgieron de ellos.</p>
-      </div>
-      <button v-if="esAdmin" class="btn btn-primary" @click="toggleNuevo">
-        {{ formAbierto ? 'Cancelar' : '+ Nuevo acuerdo' }}
-      </button>
-    </div>
+    <VistaEncabezado titulo="Acuerdos" subtitulo="Decisiones colectivas y seguimiento">
+      <template #accion>
+        <button v-if="esAdmin" class="btn btn-primary" @click="toggleNuevo">
+          {{ formAbierto ? 'Cancelar' : 'Nuevo acuerdo' }}
+        </button>
+      </template>
+    </VistaEncabezado>
 
     <Alerta v-if="error" tipo="error" :mensaje="error" />
     <Alerta v-if="exito" tipo="exito" :mensaje="exito" :duracion="4000" />
 
-    <div v-if="formAbierto && esAdmin" class="tarjeta-form">
+    <div class="estadisticas-fila">
+      <TarjetaStat :texto="`${acuerdos.length} vigentes`" />
+      <TarjetaStat :texto="`${enSeguimiento} con seguimiento`" />
+      <TarjetaStat :texto="`${vencidos} vencidos`" />
+    </div>
+
+    <div class="contenido-doble tarjetas-superiores">
+      <div class="card">
+        <h2>Seguimiento colectivo</h2>
+        <p class="seguimiento-texto">Cada acuerdo conserva su reunión de origen, una persona responsable y una fecha de revisión visible.</p>
+        <ul class="seguimiento-lista">
+          <li v-for="c in comisionesConAcuerdos" :key="c.id">
+            <span class="seguimiento-nombre">{{ c.nombre }}</span>
+            <span class="seguimiento-detalle">{{ acuerdosDe(c.id) }} acuerdo{{ acuerdosDe(c.id) === 1 ? '' : 's' }} a su cargo</span>
+          </li>
+          <li v-if="comisionesConAcuerdos.length === 0" class="seguimiento-detalle">Todavía no hay comisiones asignadas a acuerdos.</li>
+        </ul>
+      </div>
+
+      <TarjetaDatos titulo="Acuerdos recientes">
+        <p v-for="a in acuerdosRecientes" :key="a.id" class="item-datos">
+          {{ a.tema }} <span class="acuerdo-meta">· {{ formatoFecha(a.fechaPrevista) }} · {{ estadoAcuerdo(a) }}</span>
+        </p>
+        <p v-if="acuerdosRecientes.length === 0" class="item-datos">Todavía no hay acuerdos registrados.</p>
+      </TarjetaDatos>
+    </div>
+
+    <div v-if="formAbierto && esAdmin" class="card tarjeta-form">
       <h3>Registrar acuerdo</h3>
       <form @submit.prevent="guardarAcuerdo" class="formulario">
         <div class="grupo">
@@ -51,41 +76,45 @@
       </form>
     </div>
 
-    <table class="tabla">
-      <thead>
-        <tr>
-          <th>Reunión</th>
-          <th>Tema</th>
-          <th>Decisión</th>
-          <th>Responsable</th>
-          <th>Fecha prevista</th>
-          <th class="acciones-col">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="a in acuerdos" :key="a.id">
-          <td>{{ nombreReunion(a.reunion) }}</td>
-          <td>{{ a.tema }}</td>
-          <td>{{ a.decision }}</td>
-          <td>{{ nombreComision(a.responsable) }}</td>
-          <td>{{ formatearFecha(a.fechaPrevista) }}</td>
-          <td class="acciones-col">
-            <button v-if="esAdmin" class="btn btn-outline btn-sm" @click="editarAcuerdo(a)">Editar</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-container card tarjeta-tabla">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Reunión</th>
+            <th>Tema</th>
+            <th>Decisión</th>
+            <th>Responsable</th>
+            <th>Fecha prevista</th>
+            <th class="acciones-col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="a in acuerdos" :key="a.id">
+            <td>{{ nombreReunion(a.reunion) }}</td>
+            <td>{{ a.tema }}</td>
+            <td>{{ a.decision }}</td>
+            <td>{{ nombreComision(a.responsable) }}</td>
+            <td>{{ formatearFecha(a.fechaPrevista) }}</td>
+            <td class="acciones-col">
+              <button v-if="esAdmin" class="btn btn-outline btn-sm" @click="editarAcuerdo(a)">Editar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     <div v-if="acuerdos.length === 0 && !cargando" class="vacio">No hay acuerdos registrados.</div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { inject } from 'vue'
+import { ref, computed, onMounted, inject } from 'vue'
 import { validar, requerido } from '@/validations'
 import { acuerdosService, reunionesService, comisionesService } from '@/services'
 
 import Alerta from '@/components/Alerta.vue'
+import VistaEncabezado from '@/components/VistaEncabezado.vue'
+import TarjetaStat from '@/components/TarjetaStat.vue'
+import TarjetaDatos from '@/components/TarjetaDatos.vue'
 
 const auth = inject('auth')
 const esAdmin = computed(() => auth && auth.rol === 'administrador')
@@ -104,8 +133,31 @@ const nuevo = ref({ reunion: '', tema: '', decision: '', responsable: '', fechaP
 const toggleNuevo = () => { formAbierto.value = !formAbierto.value }
 const reglas = { tema: [requerido], decision: [requerido] }
 
+const hoy = new Date().toISOString().split('T')[0]
+const enSeguimiento = computed(() => acuerdos.value.filter((a) => a.fechaPrevista && a.fechaPrevista >= hoy).length)
+const vencidos = computed(() => acuerdos.value.filter((a) => a.fechaPrevista && a.fechaPrevista < hoy).length)
+
+const acuerdosRecientes = computed(() => acuerdos.value.slice(0, 4))
+const acuerdosDe = (id) => acuerdos.value.filter((a) => a.responsable === id).length
+const comisionesConAcuerdos = computed(() => comisiones.value.filter((c) => acuerdosDe(c.id) > 0))
+
+function estadoAcuerdo(a) {
+  if (!a.fechaPrevista) return 'Sin fecha'
+  return a.fechaPrevista >= hoy ? 'En curso' : 'Vencido'
+}
+
+function formatoFecha(iso) {
+  if (!iso) return 'sin fecha'
+  const d = new Date(iso + 'T00:00:00')
+  return `${String(d.getDate()).padStart(2, '0')} ${d.toLocaleDateString('es-AR', { month: 'short' }).replace('.', '').toUpperCase()}`
+}
+
 onMounted(async () => {
-  const [rA, rR, rC] = await Promise.all([acuerdosService.listar(), reunionesService.listar(), comisionesService.listar()])
+  const [rA, rR, rC] = await Promise.all([
+    acuerdosService.listar(),
+    reunionesService.listar(),
+    comisionesService.listar(),
+  ])
   if (rA.exito) acuerdos.value = rA.data || []
   else error.value = rA.error?.message || 'No se pudieron cargar los acuerdos.'
   if (rR.exito) reuniones.value = rR.data || []
@@ -150,32 +202,36 @@ async function editarAcuerdo(a) {
 </script>
 
 <style scoped>
-.acuerdos { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
-.encabezado { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
-.encabezado h1 { font-size: 1.75rem; margin: 0; color: var(--color-verde-oscuro); }
-.encabezado p { margin: 4px 0 0 0; color: var(--color-texto-suave); }
-.tarjeta-form { background: var(--color-blanco); border: 1px solid var(--color-borde); border-radius: 10px; padding: 20px; margin-bottom: 18px; }
-.tarjeta-form h3 { margin: 0 0 14px 0; color: var(--color-verde-oscuro); }
+.acuerdos { width: 100%; }
+
+.tarjetas-superiores { margin-bottom: 16px; }
+.tarjetas-superiores h2 { font-size: 1.05rem; margin-bottom: 8px; }
+
+.seguimiento-texto { font-size: 0.95rem; color: var(--texto-suave); margin-bottom: 12px; }
+.seguimiento-lista { display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem; }
+.seguimiento-lista li { border-top: 1px solid var(--borde); padding-top: 8px; display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.seguimiento-lista li:first-child { border-top: none; padding-top: 0; }
+.seguimiento-nombre { font-weight: 800; }
+.seguimiento-detalle { color: var(--texto-suave); font-size: 0.85rem; }
+.acuerdo-meta { color: var(--texto-suave); font-size: 0.8rem; }
+
+.tarjeta-form { margin-bottom: 16px; }
+.tarjeta-form h3 { margin: 0 0 14px 0; font-size: 1.05rem; }
 .formulario { display: flex; flex-direction: column; gap: 14px; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .grupo { display: flex; flex-direction: column; gap: 6px; }
-.etiqueta { font-size: 0.9rem; font-weight: 700; color: var(--color-texto-suave); display: flex; align-items: center; gap: 6px; }
-.requerido { color: var(--color-error); font-size: 0.85rem; }
-.entrada { padding: 9px 12px; border: 1px solid var(--color-borde); border-radius: 6px; font-size: 0.95rem; }
+.etiqueta { font-size: 0.85rem; font-weight: 800; color: var(--texto-suave); display: flex; align-items: center; gap: 6px; }
+.requerido { color: var(--error-texto); font-size: 0.8rem; }
+.entrada { padding: 10px 14px; border: 1px solid var(--borde); border-radius: var(--radio-campo); font-size: 0.95rem; background: var(--fondo-tarjeta); color: var(--texto); }
 textarea.entrada { resize: vertical; }
-.error { color: var(--color-error); font-size: 0.85rem; margin-top: 2px; }
 .acciones { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }
-.btn { padding: 10px 18px; font-size: 0.95rem; }
-.tabla { width: 100%; border-collapse: collapse; background: var(--color-blanco); border: 1px solid var(--color-borde); border-radius: 8px; font-size: 0.9rem; margin-top: 8px; }
-.tabla th, .tabla td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--color-borde); }
-.tabla th { background: var(--color-gris-claro); font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.4px; color: var(--color-texto-suave); }
-.tabla tr:last-child td { border-bottom: none; }
+
+.tarjeta-tabla { padding: 0; overflow: hidden; }
+.tarjeta-tabla .tabla { border: none; border-radius: 0; }
 .acciones-col { white-space: nowrap; }
-.vacio { text-align: center; padding: 48px 24px; color: var(--color-texto-suave); }
-@media (max-width: 600px) {
+
+@media (max-width: 700px) {
   .form-row { grid-template-columns: 1fr; }
-  .encabezado { flex-direction: column; align-items: stretch; }
-  .tabla { font-size: 0.75rem; }
-  .tabla th, .tabla td { padding: 8px 6px; }
+  .acciones { justify-content: stretch; flex-direction: column-reverse; }
 }
 </style>

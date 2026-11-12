@@ -1,23 +1,44 @@
 <template>
   <div class="usuarios">
-    <div class="encabezado">
-      <div>
-        <h1>Gestión de usuarios</h1>
-        <p>Consultá los usuarios registrados, creá cuentas nuevas y asignalas a una comisión.</p>
-      </div>
-      <button class="btn btn-primary" @click="toggleNuevo">
-        {{ formAbierto ? 'Cancelar' : '+ Nuevo usuario' }}
-      </button>
-    </div>
+    <VistaEncabezado titulo="Usuarios" subtitulo="Personas, roles y participación">
+      <template #accion>
+        <button v-if="esAdmin" class="btn btn-primary" @click="toggleNuevo">
+          {{ formAbierto ? 'Cancelar' : 'Invitar persona' }}
+        </button>
+      </template>
+    </VistaEncabezado>
 
     <Alerta v-if="error" tipo="error" :mensaje="error" />
     <Alerta v-if="exito" tipo="exito" :mensaje="exito" :duracion="4000" />
 
     <div class="modo-aviso" v-if="modoDesarrollo">
-      ⚠️ Modo desarrollo: estas cuentas son <strong>ficticias (de prueba)</strong>.
+      Modo desarrollo: estas cuentas son <strong>ficticias (de prueba)</strong>.
     </div>
 
-    <div v-if="formAbierto" class="tarjeta-form">
+    <div class="estadisticas-fila">
+      <TarjetaStat :texto="`${usuarios.length} personas`" />
+      <TarjetaStat :texto="`${porcentajeActivas} % activas`" />
+      <TarjetaStat :texto="`${comisiones.length} comisiones`" />
+    </div>
+
+    <div class="contenido-doble tarjetas-superiores">
+      <div class="card">
+        <h2>Participación por rol</h2>
+        <p class="participacion-linea">
+          Integrantes {{ conteoRol('integrante') }} · Administración {{ conteoRol('administrador') }} · Comunidad {{ conteoRol('comunidad') }}
+        </p>
+        <p class="participacion-nota">Solo las cuentas activas se muestran en el listado. La autorización real se aplica con las políticas RLS de Supabase.</p>
+      </div>
+
+      <TarjetaDatos titulo="Personas recientes">
+        <p v-for="u in personasRecientes" :key="u.id" class="item-datos">
+          {{ u.nombre }} · {{ rolLegible(u.rol) }} · {{ u.activo ? 'Activa' : 'Inactiva' }}
+        </p>
+        <p v-if="personasRecientes.length === 0" class="item-datos">Todavía no hay personas registradas.</p>
+      </TarjetaDatos>
+    </div>
+
+    <div v-if="formAbierto && esAdmin" class="card tarjeta-form">
       <h3>Crear usuario</h3>
       <form @submit.prevent="guardarUsuario" class="formulario">
         <div class="form-row">
@@ -50,7 +71,7 @@
         <div class="grupo">
           <label class="etiqueta">Contraseña <span class="requerido">*</span></label>
           <input v-model="nuevo.password" type="password" class="entrada" />
-          <span class="hint">Mínimo 6 caracteres.</span>
+          <span class="hint">Mínimo 6 caracteres. En modo desarrollo la contraseña no se valida con un servidor.</span>
         </div>
         <div class="acciones">
           <button type="button" class="btn btn-outline" @click="toggleNuevo">Cancelar</button>
@@ -59,42 +80,46 @@
       </form>
     </div>
 
-    <table class="tabla">
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Correo</th>
-          <th>Rol</th>
-          <th>Comisión</th>
-          <th>Estado</th>
-          <th class="acciones-col">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="u in usuarios" :key="u.id">
-          <td>{{ u.nombre }}</td>
-          <td>{{ u.email }}</td>
-          <td><span class="badge" :class="claseRol(u.rol)">{{ u.rol }}</span></td>
-          <td>{{ nombreComision(u.comision) }}</td>
-          <td><span class="badge" :class="claseEstado(u.activo)">{{ u.activo ? 'Activo' : 'Inactivo' }}</span></td>
-          <td class="acciones-col">
-            <button class="btn btn-outline btn-sm" @click="editarUsuario(u)">Editar</button>
-            <button class="btn btn-danger btn-sm" @click="cambiarEstadoUsuario(u)">{{ u.activo ? 'Desactivar' : 'Activar' }}</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-container card tarjeta-tabla">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Rol</th>
+            <th>Comisión</th>
+            <th>Estado</th>
+            <th class="acciones-col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="u in usuarios" :key="u.id">
+            <td>{{ u.nombre }}</td>
+            <td>{{ u.email }}</td>
+            <td><span class="badge" :class="claseRol(u.rol)">{{ rolLegible(u.rol) }}</span></td>
+            <td>{{ nombreComision(u.comision) }}</td>
+            <td><span class="badge" :class="claseEstado(u.activo)">{{ u.activo ? 'Activo' : 'Inactivo' }}</span></td>
+            <td class="acciones-col">
+              <button class="btn btn-outline btn-sm" @click="editarUsuario(u)">Editar</button>
+              <button class="btn btn-danger btn-sm" @click="cambiarEstadoUsuario(u)">{{ u.activo ? 'Desactivar' : 'Activar' }}</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     <div v-if="usuarios.length === 0 && !cargando" class="vacio">No hay usuarios registrados.</div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { inject } from 'vue'
+import { ref, computed, onMounted, inject } from 'vue'
 import { validar, requerido, emailValido, seleccionValida, contraseñaSegura } from '@/validations'
 import { perfilesService, comisionesService } from '@/services'
 
 import Alerta from '@/components/Alerta.vue'
+import VistaEncabezado from '@/components/VistaEncabezado.vue'
+import TarjetaStat from '@/components/TarjetaStat.vue'
+import TarjetaDatos from '@/components/TarjetaDatos.vue'
 
 const auth = inject('auth')
 const esAdmin = computed(() => auth && auth.rol === 'administrador')
@@ -112,6 +137,16 @@ const nuevo = ref({ nombre: '', email: '', rol: 'integrante', comision: '', pass
 
 const toggleNuevo = () => { formAbierto.value = !formAbierto.value }
 const mostrarComision = computed(() => nuevo.value.rol === 'integrante')
+const rolCambiado = () => { if (nuevo.value.rol !== 'integrante') nuevo.value.comision = '' }
+
+const porcentajeActivas = computed(() => {
+  if (!usuarios.value.length) return 0
+  const activas = usuarios.value.filter((u) => u.activo).length
+  return Math.round((activas / usuarios.value.length) * 100)
+})
+
+const conteoRol = (rol) => usuarios.value.filter((u) => u.rol === rol).length
+const personasRecientes = computed(() => usuarios.value.slice(0, 4))
 
 const reglas = {
   nombre: [requerido],
@@ -124,7 +159,7 @@ onMounted(async () => {
   const [rU, rC] = await Promise.all([perfilesService.listar(), comisionesService.listar()])
   if (rU.exito) usuarios.value = rU.data || []
   else error.value = rU.error?.message || 'No se pudieron cargar los usuarios.'
-  if (rC.exito) comisiones.value = rC.data.filter((c) => c.activo)
+  if (rC.exito) comisiones.value = (rC.data || []).filter((c) => c.activo)
   cargando.value = false
 })
 
@@ -133,6 +168,11 @@ function nombreComision(id) {
   const c = comisiones.value.find((x) => x.id === id)
   return c ? c.nombre : '—'
 }
+
+function rolLegible(rol) {
+  return { administrador: 'Administración', integrante: 'Integrante', comunidad: 'Comunidad' }[rol] || rol
+}
+
 function claseRol(r) {
   return { administrador: 'badge-activo', integrante: 'badge-pendiente', comunidad: 'badge-pendiente' }[r] || 'badge-pendiente'
 }
@@ -180,46 +220,31 @@ async function cambiarEstadoUsuario(u) {
 </script>
 
 <style scoped>
-.usuarios { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
-.encabezado { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
-.encabezado h1 { font-size: 1.75rem; margin: 0; color: var(--color-verde-oscuro); }
-.encabezado p { margin: 4px 0 0 0; color: var(--color-texto-suave); }
-.tarjeta-form { background: var(--color-blanco); border: 1px solid var(--color-borde); border-radius: 10px; padding: 20px; margin-bottom: 18px; }
-.tarjeta-form h3 { margin: 0 0 14px 0; color: var(--color-verde-oscuro); }
+.usuarios { width: 100%; }
+
+.tarjetas-superiores { margin-bottom: 16px; }
+.tarjetas-superiores h2 { font-size: 1.05rem; margin-bottom: 8px; }
+
+.participacion-linea { font-size: 0.95rem; font-weight: 700; margin-bottom: 6px; }
+.participacion-nota { font-size: 0.82rem; color: var(--texto-suave); }
+
+.tarjeta-form { margin-bottom: 16px; }
+.tarjeta-form h3 { margin: 0 0 14px 0; font-size: 1.05rem; }
 .formulario { display: flex; flex-direction: column; gap: 14px; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .grupo { display: flex; flex-direction: column; gap: 6px; }
-.etiqueta { font-size: 0.9rem; font-weight: 700; color: var(--color-texto-suave); display: flex; align-items: center; gap: 6px; }
-.requerido { color: var(--color-error); font-size: 0.85rem; }
-.entrada { padding: 9px 12px; border: 1px solid var(--color-borde); border-radius: 6px; font-size: 0.95rem; }
-.hint { font-size: 0.8rem; color: var(--color-texto-suave); margin-top: 2px; }
-.error { color: var(--color-error); font-size: 0.85rem; margin-top: 2px; }
+.etiqueta { font-size: 0.85rem; font-weight: 800; color: var(--texto-suave); display: flex; align-items: center; gap: 6px; }
+.requerido { color: var(--error-texto); font-size: 0.8rem; }
+.entrada { padding: 10px 14px; border: 1px solid var(--borde); border-radius: var(--radio-campo); font-size: 0.95rem; background: var(--fondo-tarjeta); color: var(--texto); }
+.hint { font-size: 0.78rem; color: var(--texto-suave); margin-top: 2px; }
 .acciones { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }
-.btn { padding: 10px 18px; font-size: 0.95rem; }
-.tabla { width: 100%; border-collapse: collapse; background: var(--color-blanco); border: 1px solid var(--color-borde); border-radius: 8px; font-size: 0.9rem; margin-top: 8px; }
-.tabla th, .tabla td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--color-borde); }
-.tabla th { background: var(--color-gris-claro); font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.4px; color: var(--color-texto-suave); }
-.tabla tr:last-child td { border-bottom: none; }
+
+.tarjeta-tabla { padding: 0; overflow: hidden; }
+.tarjeta-tabla .tabla { border: none; border-radius: 0; }
 .acciones-col { white-space: nowrap; }
 .acciones-col .btn { margin-bottom: 6px; width: 100%; }
-.vacio { text-align: center; padding: 48px 24px; color: var(--color-texto-suave); }
-.modo-aviso {
-  background: #FBF0DC;
-  border: 1px solid #E8C98E;
-  border-radius: 6px;
-  padding: 10px 14px;
-  font-size: 0.85rem;
-  color: #7A4F00;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-@media (max-width: 600px) {
-  .form-row { grid-template-columns: 1fr; }
-  .encabezado { flex-direction: column; align-items: stretch; }
-  .tabla { font-size: 0.75rem; }
-  .tabla th, .tabla td { padding: 8px 6px; }
+
+@media (max-width: 700px) {
   .acciones-col .btn { width: auto; margin-bottom: 4px; }
+  .acciones { justify-content: stretch; flex-direction: column-reverse; }
 }
 </style>

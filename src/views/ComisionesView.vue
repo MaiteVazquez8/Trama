@@ -1,19 +1,43 @@
 <template>
   <div class="comisiones">
-    <div class="encabezado">
-      <div>
-        <h1>Comisiones</h1>
-        <p>Consultá las comisiones de la cooperativa y las personas que forman parte de cada una.</p>
-      </div>
-      <button v-if="esAdmin" class="btn btn-primary" @click="toggleNuevo">
-        {{ formAbierto ? 'Cancelar' : '+ Nueva comisión' }}
-      </button>
-    </div>
+    <VistaEncabezado titulo="Comisiones" subtitulo="Equipos de trabajo y responsabilidades">
+      <template #accion>
+        <button v-if="esAdmin" class="btn btn-primary" @click="toggleNuevo">
+          {{ formAbierto ? 'Cancelar' : 'Nueva comisión' }}
+        </button>
+      </template>
+    </VistaEncabezado>
 
     <Alerta v-if="error" tipo="error" :mensaje="error" />
     <Alerta v-if="exito" tipo="exito" :mensaje="exito" :duracion="4000" />
 
-    <div v-if="formAbierto && esAdmin" class="tarjeta-form">
+    <div class="estadisticas-fila">
+      <TarjetaStat :texto="`${comisiones.length} comisiones`" />
+      <TarjetaStat :texto="`${integrantes} integrantes`" />
+      <TarjetaStat :texto="`${tareas} tareas`" />
+    </div>
+
+    <div class="contenido-doble tarjetas-superiores">
+      <div class="card">
+        <h2>Equipos en actividad</h2>
+        <ul class="equipos-lista">
+          <li v-for="c in comisiones" :key="c.id">
+            <span class="equipo-nombre">{{ c.nombre }}</span>
+            <span class="equipo-detalle">{{ integrantesDe(c.id) }} integrantes · {{ resumen(c.descripcion) }}</span>
+          </li>
+          <li v-if="comisiones.length === 0" class="equipo-detalle">Todavía no hay comisiones cargadas.</li>
+        </ul>
+      </div>
+
+      <TarjetaDatos titulo="Próximas reuniones">
+        <p v-for="r in proximasReuniones" :key="r.id" class="item-datos">
+          <strong>{{ formatoFecha(r.fecha) }}</strong> {{ r.temas }}
+        </p>
+        <p v-if="proximasReuniones.length === 0" class="item-datos">No hay reuniones cargadas.</p>
+      </TarjetaDatos>
+    </div>
+
+    <div v-if="formAbierto && esAdmin" class="card tarjeta-form">
       <h3>Crear comisión</h3>
       <form @submit.prevent="guardarComision" class="formulario">
         <div class="grupo">
@@ -31,38 +55,42 @@
       </form>
     </div>
 
-    <table class="tabla">
-      <thead>
-        <tr>
-          <th>Comisión</th>
-          <th>Función / Descripción</th>
-          <th>Estado</th>
-          <th class="acciones-col">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="c in comisiones" :key="c.id">
-          <td>{{ c.nombre }}</td>
-          <td>{{ c.descripcion || '—' }}</td>
-          <td><span class="badge" :class="claseEstado(c.activo)">{{ c.activo ? 'Activa' : 'Inactiva' }}</span></td>
-          <td class="acciones-col">
-            <button v-if="esAdmin" class="btn btn-outline btn-sm" @click="editarComision(c)">Editar</button>
-            <button v-if="esAdmin" class="btn btn-danger btn-sm" @click="cambiarEstadoComision(c)">{{ c.activo ? 'Desactivar' : 'Activar' }}</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-container card tarjeta-tabla">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Comisión</th>
+            <th>Función / Descripción</th>
+            <th>Estado</th>
+            <th class="acciones-col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="c in comisiones" :key="c.id">
+            <td>{{ c.nombre }}</td>
+            <td>{{ c.descripcion || '—' }}</td>
+            <td><span class="badge" :class="claseEstado(c.activo)">{{ c.activo ? 'Activa' : 'Inactiva' }}</span></td>
+            <td class="acciones-col">
+              <button v-if="esAdmin" class="btn btn-outline btn-sm" @click="editarComision(c)">Editar</button>
+              <button v-if="esAdmin" class="btn btn-danger btn-sm" @click="cambiarEstadoComision(c)">{{ c.activo ? 'Desactivar' : 'Activar' }}</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     <div v-if="comisiones.length === 0 && !cargando" class="vacio">No hay comisiones registradas.</div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { inject } from 'vue'
+import { ref, computed, onMounted, inject } from 'vue'
 import { validar, requerido } from '@/validations'
-import { comisionesService } from '@/services'
+import { comisionesService, perfilesService, tareasService, reunionesService } from '@/services'
 
 import Alerta from '@/components/Alerta.vue'
+import VistaEncabezado from '@/components/VistaEncabezado.vue'
+import TarjetaStat from '@/components/TarjetaStat.vue'
+import TarjetaDatos from '@/components/TarjetaDatos.vue'
 
 const auth = inject('auth')
 const esAdmin = computed(() => auth && auth.rol === 'administrador')
@@ -73,15 +101,46 @@ const exito = ref(null)
 const formAbierto = ref(false)
 
 const comisiones = ref([])
+const perfiles = ref([])
+const tareas = ref(0)
+const reuniones = ref([])
 const nuevo = ref({ nombre: '', descripcion: '' })
 
 const toggleNuevo = () => { formAbierto.value = !formAbierto.value }
 const reglas = { nombre: [requerido] }
 
+const integrantes = computed(() => perfiles.value.filter((p) => p.rol === 'integrante').length)
+const integrantesDe = (id) => perfiles.value.filter((p) => p.comision === id).length
+
+const proximasReuniones = computed(() =>
+  [...reuniones.value]
+    .sort((a, b) => (a.fecha < b.fecha ? 1 : -1))
+    .slice(0, 3)
+)
+
+function resumen(descripcion) {
+  if (!descripcion) return 'Equipo de trabajo'
+  return descripcion.split('.')[0].split(',')[0].trim()
+}
+
+function formatoFecha(iso) {
+  if (!iso) return ''
+  const d = new Date(iso + 'T00:00:00')
+  return `${String(d.getDate()).padStart(2, '0')} ${d.toLocaleDateString('es-AR', { month: 'short' }).replace('.', '').toUpperCase()}`
+}
+
 onMounted(async () => {
-  const r = await comisionesService.listar()
-  if (r.exito) comisiones.value = r.data || []
-  else error.value = r.error?.message || 'No se pudieron cargar las comisiones.'
+  const [rC, rP, rT, rR] = await Promise.all([
+    comisionesService.listar(),
+    perfilesService.listar(),
+    tareasService.listar(),
+    reunionesService.listar(),
+  ])
+  if (rC.exito) comisiones.value = rC.data || []
+  else error.value = rC.error?.message || 'No se pudieron cargar las comisiones.'
+  if (rP.exito) perfiles.value = rP.data || []
+  if (rT.exito) tareas.value = (rT.data || []).length
+  if (rR.exito) reuniones.value = rR.data || []
   cargando.value = false
 })
 
@@ -123,32 +182,34 @@ async function cambiarEstadoComision(c) {
 </script>
 
 <style scoped>
-.comisiones { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
-.encabezado { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
-.encabezado h1 { font-size: 1.75rem; margin: 0; color: var(--color-verde-oscuro); }
-.encabezado p { margin: 4px 0 0 0; color: var(--color-texto-suave); }
-.tarjeta-form { background: var(--color-blanco); border: 1px solid var(--color-borde); border-radius: 10px; padding: 20px; margin-bottom: 18px; }
-.tarjeta-form h3 { margin: 0 0 14px 0; color: var(--color-verde-oscuro); }
+.comisiones { width: 100%; }
+
+.tarjetas-superiores { margin-bottom: 16px; }
+.tarjetas-superiores h2 { font-size: 1.05rem; margin-bottom: 8px; }
+
+.equipos-lista { display: flex; flex-direction: column; gap: 8px; }
+.equipos-lista li { border-top: 1px solid var(--borde); padding-top: 8px; font-size: 0.9rem; }
+.equipos-lista li:first-child { border-top: none; padding-top: 0; }
+.equipo-nombre { font-weight: 800; margin-right: 6px; }
+.equipo-detalle { color: var(--texto-suave); font-size: 0.85rem; }
+
+.tarjeta-form { margin-bottom: 16px; }
+.tarjeta-form h3 { margin: 0 0 14px 0; font-size: 1.05rem; }
 .formulario { display: flex; flex-direction: column; gap: 14px; }
 .grupo { display: flex; flex-direction: column; gap: 6px; }
-.etiqueta { font-size: 0.9rem; font-weight: 700; color: var(--color-texto-suave); display: flex; align-items: center; gap: 6px; }
-.requerido { color: var(--color-error); font-size: 0.85rem; }
-.entrada { padding: 9px 12px; border: 1px solid var(--color-borde); border-radius: 6px; font-size: 0.95rem; }
+.etiqueta { font-size: 0.85rem; font-weight: 800; color: var(--texto-suave); display: flex; align-items: center; gap: 6px; }
+.requerido { color: var(--error-texto); font-size: 0.8rem; }
+.entrada { padding: 10px 14px; border: 1px solid var(--borde); border-radius: var(--radio-campo); font-size: 0.95rem; background: var(--fondo-tarjeta); color: var(--texto); }
 textarea.entrada { resize: vertical; }
-.error { color: var(--color-error); font-size: 0.85rem; margin-top: 2px; }
 .acciones { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }
-.btn { padding: 10px 18px; font-size: 0.95rem; }
-.tabla { width: 100%; border-collapse: collapse; background: var(--color-blanco); border: 1px solid var(--color-borde); border-radius: 8px; font-size: 0.9rem; margin-top: 8px; }
-.tabla th, .tabla td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--color-borde); }
-.tabla th { background: var(--color-gris-claro); font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.4px; color: var(--color-texto-suave); }
-.tabla tr:last-child td { border-bottom: none; }
+
+.tarjeta-tabla { padding: 0; overflow: hidden; }
+.tarjeta-tabla .tabla { border: none; border-radius: 0; }
 .acciones-col { white-space: nowrap; }
 .acciones-col .btn { margin-bottom: 6px; width: 100%; }
-.vacio { text-align: center; padding: 48px 24px; color: var(--color-texto-suave); }
-@media (max-width: 600px) {
-  .encabezado { flex-direction: column; align-items: stretch; }
-  .tabla { font-size: 0.75rem; }
-  .tabla th, .tabla td { padding: 8px 6px; }
+
+@media (max-width: 700px) {
   .acciones-col .btn { width: auto; margin-bottom: 4px; }
+  .acciones { justify-content: stretch; flex-direction: column-reverse; }
 }
 </style>

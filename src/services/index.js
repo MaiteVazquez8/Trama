@@ -742,6 +742,7 @@ export const estadisticasService = {
       },
       simulado: SIMULADO,
       error: null,
+      exito: true,
     }
   },
 

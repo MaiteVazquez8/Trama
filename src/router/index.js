@@ -23,9 +23,9 @@ const ConfiguracionView = () => import('../views/ConfiguracionView.vue')
 const NotFoundView = () => import('../views/NotFoundView.vue')
 
 export default [
-  { path: '/', name: 'inicio', component: HomeView, meta: { soloVisitantes: false } },
-  { path: '/login', name: 'login', component: LoginView, meta: { soloVisitantes: true } },
-  { path: '/registro', name: 'registro', component: RegisterView, meta: { soloVisitantes: true } },
+  { path: '/', name: 'inicio', component: HomeView, meta: { publica: true } },
+  { path: '/login', name: 'login', component: LoginView, meta: { publica: true, soloVisitantes: true } },
+  { path: '/registro', name: 'registro', component: RegisterView, meta: { publica: true, soloVisitantes: true } },
 
   { path: '/panel', name: 'panel', component: PanelView, meta: { requiereAuth: true } },
   { path: '/usuarios', name: 'usuarios', component: UsuariosView, meta: { requiereAuth: true, rol: 'administrador' } },

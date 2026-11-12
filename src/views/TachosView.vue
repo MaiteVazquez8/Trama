@@ -1,19 +1,43 @@
 <template>
   <div class="tachos">
-    <div class="encabezado">
-      <div>
-        <h1>Tachos</h1>
-        <p>Consultá los tachos disponibles, su ubicación y el tipo de residuos que corresponde colocar en cada uno.</p>
-      </div>
-      <button v-if="esAdmin" class="btn btn-primary" @click="toggleNuevo">
-        {{ formularioAbierto ? 'Cancelar' : '+ Nuevo tacho' }}
-      </button>
-    </div>
+    <VistaEncabezado titulo="Tachos" subtitulo="Puntos de separación dentro de la institución">
+      <template #accion>
+        <button v-if="esAdmin" class="btn btn-primary" @click="toggleNuevo">
+          {{ formularioAbierto ? 'Cancelar' : 'Agregar tacho' }}
+        </button>
+      </template>
+    </VistaEncabezado>
 
     <Alerta v-if="error" tipo="error" :mensaje="error" />
     <Alerta v-if="exito" tipo="exito" :mensaje="exito" :duracion="4000" />
 
-    <div v-if="formularioAbierto && esAdmin" class="tarjeta-form">
+    <div class="estadisticas-fila">
+      <TarjetaStat :texto="`${tachos.length} puntos`" />
+      <TarjetaStat :texto="`${operativos} operativos`" />
+      <TarjetaStat :texto="`${porRevisar} por revisar`" />
+    </div>
+
+    <div class="contenido-doble tarjetas-superiores">
+      <div class="card puntos-card">
+        <h2>Puntos de separación</h2>
+        <img class="puntos-foto" src="/img/tachos.webp" alt="Tachos de colores para separar residuos: amarillo, verde y azul" loading="lazy" />
+        <ul class="puntos-lista">
+          <li v-for="t in tachos.slice(0, 4)" :key="t.id">
+            {{ t.nombre }} <span class="punto-detalle">· {{ t.ubicacion }} · {{ t.activo ? 'Operativo' : 'Sin operar' }}</span>
+          </li>
+          <li v-if="tachos.length === 0" class="punto-detalle">Todavía no hay tachos registrados.</li>
+        </ul>
+      </div>
+
+      <TarjetaDatos titulo="Mantenimiento">
+        <p v-for="p in problemas" :key="p.id" class="item-datos">
+          <strong>{{ formatoFecha(p.fecha) }}</strong> {{ p.descripcion }}
+        </p>
+        <p v-if="problemas.length === 0" class="item-datos">No hay mantenimientos pendientes.</p>
+      </TarjetaDatos>
+    </div>
+
+    <div v-if="formularioAbierto && esAdmin" class="card tarjeta-form">
       <h3>Registrar tacho</h3>
       <form @submit.prevent="guardarTacho" class="formulario">
         <div class="form-row">
@@ -40,40 +64,44 @@
       </form>
     </div>
 
-    <table class="tabla">
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Ubicación</th>
-          <th>Tipo de residuo</th>
-          <th>Estado</th>
-          <th class="acciones-col">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="t in tachos" :key="t.id">
-          <td>{{ t.nombre }}</td>
-          <td>{{ t.ubicacion }}</td>
-          <td>{{ tipoNombre(t.tipoResiduo) }}</td>
-          <td><span class="badge badge-activo">{{ t.activo ? 'Activo' : 'Inactivo' }}</span></td>
-          <td class="acciones-col">
-            <button v-if="esAdmin" class="btn btn-outline btn-sm" @click="editarTacho(t)">Editar</button>
-            <button v-if="esAdmin" class="btn btn-danger btn-sm" @click="cambiarEstadoTacho(t)">{{ t.activo ? 'Desactivar' : 'Activar' }}</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-container card tarjeta-tabla">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Ubicación</th>
+            <th>Tipo de residuo</th>
+            <th>Estado</th>
+            <th class="acciones-col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="t in tachos" :key="t.id">
+            <td>{{ t.nombre }}</td>
+            <td>{{ t.ubicacion }}</td>
+            <td>{{ tipoNombre(t.tipoResiduo) }}</td>
+            <td><span class="badge" :class="t.activo ? 'badge-activo' : 'badge-cancelada'">{{ t.activo ? 'Activo' : 'Inactivo' }}</span></td>
+            <td class="acciones-col">
+              <button v-if="esAdmin" class="btn btn-outline btn-sm" @click="editarTacho(t)">Editar</button>
+              <button v-if="esAdmin" class="btn btn-danger btn-sm" @click="cambiarEstadoTacho(t)">{{ t.activo ? 'Desactivar' : 'Activar' }}</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     <div v-if="tachos.length === 0 && !cargando" class="vacio">No hay tachos registrados.</div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { inject } from 'vue'
+import { ref, computed, onMounted, inject } from 'vue'
 import { validar, requerido, seleccionValida } from '@/validations'
-import { tachosService, tiposResiduoService } from '@/services'
+import { tachosService, tiposResiduoService, problemasTachoService } from '@/services'
 
 import Alerta from '@/components/Alerta.vue'
+import VistaEncabezado from '@/components/VistaEncabezado.vue'
+import TarjetaStat from '@/components/TarjetaStat.vue'
+import TarjetaDatos from '@/components/TarjetaDatos.vue'
 
 const auth = inject('auth')
 const esAdmin = computed(() => auth && auth.rol === 'administrador')
@@ -85,6 +113,7 @@ const formularioAbierto = ref(false)
 
 const tachos = ref([])
 const tiposResiduo = ref([])
+const problemas = ref([])
 
 const nuevo = ref({ nombre: '', ubicacion: '', tipoResiduo: '' })
 
@@ -96,14 +125,30 @@ const reglas = {
   tipoResiduo: [seleccionValida],
 }
 
+const operativos = computed(() => tachos.value.filter((t) => t.activo).length)
+const porRevisar = computed(() => problemas.value.filter((p) => p.estado === 'abierto').length)
+
+function formatoFecha(iso) {
+  if (!iso) return ''
+  const d = new Date(iso + 'T00:00:00')
+  const hoy = new Date()
+  hoy.setHours(0, 0, 0, 0)
+  const diff = Math.round((hoy - d) / 86400000)
+  if (diff === 0) return 'HOY'
+  if (diff === 1) return 'AYER'
+  return `${String(d.getDate()).padStart(2, '0')} ${d.toLocaleDateString('es-AR', { month: 'short' }).replace('.', '').toUpperCase()}`
+}
+
 onMounted(async () => {
-  const [rTachos, rTipos] = await Promise.all([
+  const [rTachos, rTipos, rProblemas] = await Promise.all([
     tachosService.listar(),
     tiposResiduoService.listar(),
+    problemasTachoService.listar(),
   ])
   if (rTachos.exito) tachos.value = rTachos.data || []
   else error.value = rTachos.error?.message || 'No se pudieron cargar los tachos.'
   if (rTipos.exito) tiposResiduo.value = rTipos.data || []
+  if (rProblemas.exito) problemas.value = (rProblemas.data || []).filter((p) => p.estado === 'abierto')
   cargando.value = false
 })
 
@@ -113,7 +158,7 @@ function tipoNombre(id) {
 }
 
 async function guardarTacho() {
-  const { valido, errores } = validar(nuevo.value, reglas)
+  const { valido } = validar(nuevo.value, reglas)
   if (!valido) { error.value = 'Completá todos los campos obligatorios.'; return }
   const r = await tachosService.crear({
     nombre: nuevo.value.nombre,
@@ -150,38 +195,36 @@ async function cambiarEstadoTacho(t) {
 </script>
 
 <style scoped>
-.tachos { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
-.encabezado { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
-.encabezado h1 { font-size: 1.75rem; margin: 0; color: var(--color-verde-oscuro); }
-.encabezado p { margin: 4px 0 0 0; color: var(--color-texto-suave); }
+.tachos { width: 100%; }
 
-.tarjeta-form { background: var(--color-blanco); border: 1px solid var(--color-borde); border-radius: 10px; padding: 20px; margin-bottom: 18px; }
-.tarjeta-form h3 { margin: 0 0 14px 0; color: var(--color-verde-oscuro); }
+.tarjetas-superiores { margin-bottom: 16px; }
+.tarjetas-superiores h2 { font-size: 1.05rem; margin-bottom: 10px; }
+
+.puntos-card { display: flex; flex-direction: column; gap: 10px; }
+.puntos-foto { width: 100%; height: 170px; object-fit: cover; border-radius: var(--radio-tarjeta); display: block; }
+.puntos-lista { display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; }
+.puntos-lista li { border-top: 1px solid var(--borde); padding-top: 6px; }
+.puntos-lista li:first-child { border-top: none; padding-top: 0; }
+.punto-detalle { color: var(--texto-suave); font-size: 0.82rem; }
+
+.tarjeta-form { margin-bottom: 16px; }
+.tarjeta-form h3 { margin: 0 0 14px 0; font-size: 1.05rem; }
 .formulario { display: flex; flex-direction: column; gap: 14px; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .grupo { display: flex; flex-direction: column; gap: 6px; }
-.etiqueta { font-size: 0.9rem; font-weight: 700; color: var(--color-texto-suave); display: flex; align-items: center; gap: 6px; }
-.requerido { color: var(--color-error); font-size: 0.85rem; }
-.entrada { padding: 9px 12px; border: 1px solid var(--color-borde); border-radius: 6px; font-size: 0.95rem; }
-.error { color: var(--color-error); font-size: 0.85rem; margin-top: 2px; }
+.etiqueta { font-size: 0.85rem; font-weight: 800; color: var(--texto-suave); display: flex; align-items: center; gap: 6px; }
+.requerido { color: var(--error-texto); font-size: 0.8rem; }
+.entrada { padding: 10px 14px; border: 1px solid var(--borde); border-radius: var(--radio-campo); font-size: 0.95rem; background: var(--fondo-tarjeta); color: var(--texto); }
 .acciones { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }
-.btn { padding: 10px 18px; font-size: 0.95rem; }
 
-.tabla { width: 100%; border-collapse: collapse; background: var(--color-blanco); border: 1px solid var(--color-borde); border-radius: 8px; font-size: 0.9rem; margin-top: 8px; }
-.tabla th, .tabla td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--color-borde); }
-.tabla th { background: var(--color-gris-claro); font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.4px; color: var(--color-texto-suave); }
-.tabla tr:last-child td { border-bottom: none; }
-.tabla tr:hover td { background: rgba(48, 109, 41, 0.04); }
+.tarjeta-tabla { padding: 0; overflow: hidden; }
+.tarjeta-tabla .tabla { border: none; border-radius: 0; }
 .acciones-col { white-space: nowrap; }
 .acciones-col .btn { margin-bottom: 6px; width: 100%; }
 
-.vacio { text-align: center; padding: 48px 24px; color: var(--color-texto-suave); }
-
-@media (max-width: 600px) {
+@media (max-width: 700px) {
   .form-row { grid-template-columns: 1fr; }
-  .encabezado { flex-direction: column; align-items: stretch; }
-  .tabla { font-size: 0.75rem; }
-  .tabla th, .tabla td { padding: 8px 6px; }
   .acciones-col .btn { width: auto; margin-bottom: 4px; }
+  .acciones { justify-content: stretch; flex-direction: column-reverse; }
 }
 </style>

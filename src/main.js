@@ -4,6 +4,10 @@ import App from './App.vue'
 import routes from './router'
 import './styles.css'
 import { tieneSupabase } from './supabase/client'
+import { iniciarTema } from './utils/tema'
+
+// Aplica el tema (claro/oscuro/automático) antes de montar la app.
+iniciarTema()
 
 // Estado global simple de autenticación (se sincroniza con Supabase cuando está configurado)
 const authState = {

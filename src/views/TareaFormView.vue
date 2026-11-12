@@ -1,14 +1,20 @@
 <template>
   <div class="form-page">
-    <div class="encabezado">
-      <h1>{{ esEditar ? 'Editar tarea' : 'Nueva tarea' }}</h1>
-      <p>{{ esEditar ? 'Actualizá los datos de la tarea seleccionada.' : 'Creá una tarea y asignala a una comisión y un responsable.' }}</p>
-    </div>
+    <VistaEncabezado
+      :titulo="esEditar ? 'Editar tarea' : 'Nueva tarea'"
+      :subtitulo="esEditar ? 'Actualizá los datos de la tarea seleccionada.' : 'Creá una tarea y asignala a una comisión y un responsable.'"
+    >
+      <template #accion>
+        <button type="submit" form="tarea-form" class="btn btn-primary" :disabled="procesando">
+          {{ procesando ? 'Guardando…' : esEditar ? 'Actualizar tarea' : 'Crear tarea' }}
+        </button>
+      </template>
+    </VistaEncabezado>
 
     <Alerta v-if="errorGuardado" tipo="error" :mensaje="errorGuardado" />
     <Alerta v-if="mensajeExito" tipo="exito" :mensaje="mensajeExito" :duracion="4000" />
 
-    <form @submit.prevent="manejarGuardar" class="formulario" :class="{ 'en-proceso': procesando }">
+    <form id="tarea-form" @submit.prevent="manejarGuardar" class="card formulario" :class="{ 'en-proceso': procesando }">
       <div class="grupo">
         <label class="etiqueta">Título <span class="requerido">*</span></label>
         <input type="text" v-model="form.titulo" placeholder="Ej: Revisar estado de tachos del patio" class="entrada" :disabled="procesando" />
@@ -73,6 +79,7 @@ import { validar, requerido, fechaValida, seleccionValida } from '@/validations'
 import { tareasService, comisionesService, perfilesService } from '@/services'
 
 import Alerta from '@/components/Alerta.vue'
+import VistaEncabezado from '@/components/VistaEncabezado.vue'
 
 const auth = inject('auth')
 const router = useRouter()
@@ -118,9 +125,10 @@ onMounted(async () => {
 })
 
 async function cargarTarea(id) {
-  const r = await tareasService.obtener(id)
-  if (r.exito && r.data) {
-    const d = r.data
+  // tareasService no expone obtener(id): se resuelve desde el listado.
+  const r = await tareasService.listar()
+  const d = r.exito ? (r.data || []).find((t) => String(t.id) === String(id)) : null
+  if (r.exito && d) {
     form.value = {
       titulo: d.titulo,
       descripcion: d.descripcion || '',
@@ -140,8 +148,8 @@ async function manejarGuardar() {
   if (!valido) return
 
   procesando.value = true
-  errorGuardado = null
-  mensajeExito = null
+  errorGuardado.value = null
+  mensajeExito.value = null
 
   try {
     const datos = {
@@ -178,24 +186,23 @@ function volver() { router.push({ name: 'tareas' }) }
 </script>
 
 <style scoped>
-.form-page { max-width: 640px; margin: 0 auto; padding: 0 20px; }
-.encabezado { margin-bottom: 24px; }
-.encabezado h1 { font-size: 1.75rem; margin: 0 0 6px 0; color: var(--color-verde-oscuro); }
-.encabezado p { margin: 0; color: var(--color-texto-suave); }
+.form-page { width: 100%; max-width: 760px; }
 
-.formulario { background: var(--color-blanco); border: 1px solid var(--color-borde); border-radius: 10px; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.formulario { display: flex; flex-direction: column; gap: 16px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .grupo { display: flex; flex-direction: column; gap: 6px; }
-.etiqueta { font-size: 0.9rem; font-weight: 700; color: var(--color-texto-suave); display: flex; align-items: center; gap: 6px; }
-.requerido { color: var(--color-error); font-size: 0.85rem; }
-.entrada { padding: 9px 12px; border: 1px solid var(--color-borde); border-radius: 6px; font-size: 0.95rem; background: var(--color-blanco); }
-.entrada:disabled { background: #F2EEE0; cursor: not-allowed; }
+.etiqueta { font-size: 0.85rem; font-weight: 800; color: var(--texto-suave); display: flex; align-items: center; gap: 6px; }
+.requerido { color: var(--error-texto); font-size: 0.8rem; }
+.entrada { padding: 10px 14px; border: 1px solid var(--borde); border-radius: var(--radio-campo); font-size: 0.95rem; background: var(--fondo-tarjeta); color: var(--texto); }
+.entrada:focus { outline: none; border-color: var(--verde); }
+.entrada:disabled { background: var(--fondo-encabezado-tabla); cursor: not-allowed; }
 textarea.entrada { resize: vertical; }
-.error { color: var(--color-error); font-size: 0.85rem; margin-top: 2px; }
+.error { color: var(--error-texto); font-size: 0.82rem; margin-top: 2px; }
 .acciones { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }
-.btn { padding: 10px 18px; font-size: 0.95rem; }
 
 @media (max-width: 600px) {
   .form-row { grid-template-columns: 1fr; }
+  .acciones { justify-content: stretch; flex-direction: column-reverse; }
+  .acciones .btn { width: 100%; }
 }
 </style>

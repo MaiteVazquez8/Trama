@@ -7,9 +7,11 @@
       role="alert"
       aria-live="polite"
     >
-      <span class="icono">{{ icono }}</span>
+      <span class="icono" v-html="icono"></span>
       <span>{{ alerta.mensaje }}</span>
-      <button class="cerrar" @html.self.prevent @click="cerrar" aria-label="Cerrar mensaje">✕</button>
+      <button class="cerrar" @click="cerrar" aria-label="Cerrar mensaje">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
     </div>
   </transition>
 </template>
@@ -18,18 +20,13 @@
 import { ref, watch, computed } from 'vue'
 import { inject } from 'vue'
 
+import { iconoDe } from './alertaIconos'
+
 const auth = inject('auth')
 
 const alerta = ref(null)
 
-const iconos = {
-  exito: '✅',
-  error: '❌',
-  info: 'ℹ️',
-  cargando: '⏳',
-}
-
-const icono = computed(() => iconos[alerta.value?.tipo] || 'ℹ️')
+const icono = computed(() => (alerta.value ? iconoDe(alerta.value.tipo) : ''))
 
 function mostrar(mensaje, tipo = 'info', duracion = 5000) {
   alerta.value = { mensaje, tipo }
@@ -49,40 +46,40 @@ watch(
     if (nuevo) mostrar(nuevo.message || 'Ocurrió un error.', 'error', 6000)
   }
 )
-
 </script>
 
 <style scoped>
 .alerta {
-  border-radius: 6px;
+  border-radius: var(--radio-campo);
   padding: 12px 16px;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   display: flex;
   align-items: flex-start;
   gap: 10px;
   position: sticky;
-  top: 72px;
+  top: 16px;
   z-index: 100;
   width: 100%;
-  max-width: 700px;
+  max-width: 720px;
   margin: 0 auto 16px auto;
+  border: 1px solid transparent;
   animation: aparecer 0.25s ease;
 }
-.alerta-exito { background-color: #E3F0DE; color: #1E4620; border: 1px solid #B9D8AE; }
-.alerta-error { background-color: #F7DEDE; color: #6E1818; border: 1px solid #D8A9A9; }
-.alerta-info { background-color: #FBF0DC; color: #7A4F00; border: 1px solid #E8C98E; }
-.alerta-cargando { background-color: #E8EEF5; color: #2F547A; border: 1px solid #C8D6E4; }
+.alerta-exito { background-color: var(--exito-fondo); color: var(--exito-texto); border-color: var(--exito-borde); }
+.alerta-error { background-color: var(--error-fondo); color: var(--error-texto); border-color: var(--error-borde); }
+.alerta-info { background-color: var(--aviso-fondo); color: var(--aviso-texto); border-color: var(--aviso-borde); }
+.alerta-cargando { background-color: var(--cargando-fondo); color: var(--cargando-texto); border-color: var(--cargando-borde); }
 
-.icono { font-size: 1.1rem; line-height: 1; }
+.icono { line-height: 1; display: inline-flex; margin-top: 1px; }
 .cerrar {
   background: none;
   border: none;
   color: inherit;
   opacity: 0.7;
-  font-size: 1.25rem;
   cursor: pointer;
-  padding: 2px 6px;
+  padding: 2px;
   margin-left: auto;
+  display: inline-flex;
 }
 .cerrar:hover { opacity: 1; }
 
@@ -92,6 +89,6 @@ watch(
 }
 
 @media (max-width: 900px) {
-  .alerta { position: static; top: 0; max-width: none; border-radius: 0; }
+  .alerta { position: static; top: 0; max-width: none; border-radius: var(--radio-campo); }
 }
 </style>

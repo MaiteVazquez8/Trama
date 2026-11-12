@@ -1,21 +1,46 @@
 <template>
   <div class="estadisticas">
-    <div class="encabezado">
-      <h1>Indicadores y estadísticas</h1>
-      <p>KPI definidos para Trama, sus objetivos, resultados, unidades, períodos y estados. Los resultados se calculan a partir de los registros del sistema.</p>
-    </div>
+    <VistaEncabezado titulo="Estadísticas" subtitulo="Indicadores para decidir y mejorar">
+      <template #accion>
+        <button class="btn btn-primary" @click="descargarInforme" :disabled="!kpis.length">
+          Descargar informe
+        </button>
+      </template>
+    </VistaEncabezado>
 
     <Alerta v-if="error" tipo="error" :mensaje="error" />
     <Alerta v-if="exitoMensaje" tipo="exito" :mensaje="exitoMensaje" />
 
     <div class="modo-aviso" v-if="modoDesarrollo">
-      ⚠️ Modo desarrollo: estos resultados se calculan con <strong>datos ficticios de prueba</strong>. No son mediciones reales.
+      Modo desarrollo: estos resultados se calculan con <strong>datos ficticios de prueba</strong>. No son mediciones reales.
     </div>
+
+    <div class="estadisticas-fila">
+      <TarjetaStat :texto="`${kgRecuperados} kg recuperados`" />
+      <TarjetaStat :texto="`${kgSemanales} kg semanales`" />
+      <TarjetaStat :texto="`${participantesTotal} participantes`" />
+    </div>
+
+    <div class="contenido-doble tarjetas-superiores">
+      <figure class="card evolucion-card">
+        <h2>Evolución mensual</h2>
+        <img class="evolucion-foto" src="/img/reciclaje.jpeg" alt="Latas y botellas de vidrio y plástico recolectadas por la cooperativa" loading="lazy" />
+        <figcaption>{{ mesAnioActual }} · Todos los materiales · Toda la institución</figcaption>
+      </figure>
+
+      <TarjetaDatos titulo="Lectura rápida">
+        <p class="item-datos">Cartón representa el {{ porcentajeCarton }} % del total.</p>
+        <p class="item-datos">La participación suma {{ participantesTotal }} personas este período.</p>
+        <p class="item-datos">{{ entregasConfirmadas }} entregas fueron confirmadas.</p>
+      </TarjetaDatos>
+    </div>
+
+    <h2 class="detalle-titulo">Detalle de indicadores</h2>
 
     <div class="kpis-grid">
       <div class="kpi-detalle" v-for="(k, i) in kpis" :key="i">
         <div class="cabecera-kpi">
-          <h2>{{ k.nombre }}</h2>
+          <h3>{{ k.nombre }}</h3>
           <span class="badge" :class="estadoClase(k)">{{ k.estadoTexto }}</span>
         </div>
 
@@ -50,26 +75,57 @@
 </template>
 
 <script setup>
-import { onMounted, ref, computed } from 'vue'
-import { inject } from 'vue'
-import { estadisticasService } from '@/services'
+import { onMounted, ref, computed, inject } from 'vue'
+import { estadisticasService, registrosResiduoService, actividadesService, entregasService } from '@/services'
 
 import Alerta from '@/components/Alerta.vue'
+import VistaEncabezado from '@/components/VistaEncabezado.vue'
+import TarjetaStat from '@/components/TarjetaStat.vue'
+import TarjetaDatos from '@/components/TarjetaDatos.vue'
 
 const auth = inject('auth')
 
-const cargando = ref(true)
 const error = ref(null)
 const exitoMensaje = ref(null)
 const kpis = ref([])
+const resumenDatos = ref(null)
+const registros = ref([])
+const actividades = ref([])
+const entregas = ref([])
 
 const modoDesarrollo = computed(() => auth && auth.simulado)
 
+const kgRecuperados = computed(() => Math.round(resumenDatos.value?.recuperadoKgMes || 0))
+const kgSemanales = computed(() => Math.round((resumenDatos.value?.recuperadoKgMes || 0) / 4.3))
+const participantesTotal = computed(() => actividades.value.reduce((suma, a) => suma + Number(a.participantes || 0), 0))
+const entregasConfirmadas = computed(() => entregas.value.filter((e) => e.estado === 'completada').length)
+const porcentajeCarton = computed(() => {
+  const total = registros.value.filter((r) => r.estado === 'activo').length
+  if (!total) return 0
+  const carton = registros.value.filter((r) => r.estado === 'activo' && r.tipoResiduo === 'tr-1').length
+  return Math.round((carton / total) * 100)
+})
+const mesAnioActual = computed(() => {
+  const texto = new Date().toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })
+  return texto.charAt(0).toUpperCase() + texto.slice(1)
+})
+
 onMounted(async () => {
   try {
-    const r = await estadisticasService.resumen()
+    const [r, rRegistros, rActividades, rEntregas] = await Promise.all([
+      estadisticasService.resumen(),
+      registrosResiduoService.listar(),
+      actividadesService.listar(),
+      entregasService.listar(),
+    ])
+
+    if (rRegistros.exito) registros.value = rRegistros.data || []
+    if (rActividades.exito) actividades.value = rActividades.data || []
+    if (rEntregas.exito) entregas.value = rEntregas.data || []
+
     if (r.exito) {
       const d = r.datos
+      resumenDatos.value = d
       exitoMensaje.value = r.simulado
         ? 'Estadísticas calculadas con datos de prueba (modo desarrollo).'
         : 'Estadísticas calculadas con datos de Supabase.'
@@ -150,58 +206,85 @@ onMounted(async () => {
     }
   } catch (e) {
     error.value = 'Error de conexión al cargar los indicadores.'
-  } finally {
-    cargando.value = false
   }
 })
 
 const estadoClase = (k) => (k.estadoTexto === 'Cumplido' ? 'badge-activo' : 'badge-cancelada')
 const valorClase = (k) => (k.estadoTexto === 'Cumplido' ? 'cumplido' : 'no-cumplido')
+
+function descargarInforme() {
+  const encabezados = ['Indicador', 'Resultado', 'Meta', 'Estado', 'Unidad']
+  const filas = kpis.value.map((k) => [k.nombre, k.valor, k.meta, k.estadoTexto, k.unidad])
+  const escapar = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`
+  const csv = [encabezados, ...filas].map((f) => f.map(escapar).join(';')).join('\r\n')
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'trama-informe-indicadores.csv'
+  a.click()
+  URL.revokeObjectURL(url)
+  exitoMensaje.value = 'Informe de indicadores exportado como CSV.'
+}
 </script>
 
 <style scoped>
-.estadisticas { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
-.encabezado { margin-bottom: 26px; }
-.encabezado h1 { font-size: 1.75rem; margin: 0 0 6px 0; color: var(--color-verde-oscuro); }
-.encabezado p { margin: 0; color: var(--color-texto-suave); }
+.estadisticas { width: 100%; }
 
-.kpis-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.tarjetas-superiores { margin-bottom: 20px; }
+.tarjetas-superiores h2 { font-size: 1.05rem; margin-bottom: 10px; }
+
+.evolucion-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.evolucion-foto {
+  width: 100%;
+  height: 190px;
+  object-fit: cover;
+  border-radius: var(--radio-tarjeta);
+  display: block;
+}
+
+.evolucion-card figcaption {
+  font-size: 0.82rem;
+  color: var(--texto-suave);
+}
+
+.detalle-titulo {
+  font-size: 1.15rem;
+  margin: 4px 0 12px 0;
+}
+
+.kpis-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
 
 .kpi-detalle {
-  background: var(--color-blanco);
-  border: 1px solid var(--color-borde);
-  border-radius: 10px;
-  padding: 20px;
+  background: var(--fondo-tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-tarjeta);
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
-.cabecera-kpi { display: flex; align-items: center; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid var(--color-borde); }
-.cabecera-kpi h2 { font-size: 1.1rem; margin: 0; color: var(--color-verde-oscuro); }
+.cabecera-kpi { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--borde); }
+.cabecera-kpi h3 { font-size: 0.98rem; margin: 0; }
 .valor-contenedor { display: flex; flex-direction: column; gap: 4px; }
-.valor-grande { font-size: 2rem; font-weight: 800; }
+.valor-grande { font-size: 1.9rem; font-weight: 800; }
 .valor-grande.cumplido { color: var(--color-verde); }
-.valor-grande.no-cumplido { color: var(--color-error); }
-.meta { font-size: 0.85rem; color: var(--color-texto-suave); }
+.valor-grande.no-cumplido { color: var(--error-texto); }
+.meta { font-size: 0.82rem; color: var(--texto-suave); }
 
-.tabla-ficha { width: 100%; font-size: 0.85rem; border-collapse: collapse; }
-.tabla-ficha td { padding: 6px 0; border-bottom: 1px solid #F2EEE0; vertical-align: top; }
-.tabla-ficha td:first-child { font-weight: 700; color: var(--color-texto-suave); width: 38%; }
+.tabla-ficha { width: 100%; font-size: 0.82rem; border-collapse: collapse; }
+.tabla-ficha td { padding: 6px 0; border-bottom: 1px solid var(--borde); vertical-align: top; }
+.tabla-ficha td:first-child { font-weight: 700; color: var(--texto-suave); width: 38%; }
 .tabla-ficha tr:last-child td { border-bottom: none; }
 
-.nota { margin-top: 8px; font-size: 0.85rem; color: var(--color-texto-suave); padding: 8px 12px; background: var(--color-gris-claro); border-radius: 6px; }
+.nota { margin-top: 8px; font-size: 0.82rem; color: var(--texto-suave); padding: 8px 12px; background: var(--fondo-crema); border-radius: var(--radio-campo); }
 
-.resumen-nota { margin-top: 22px; font-size: 0.9rem; color: var(--color-texto-suave); background: #FBF0DC; border: 1px solid #E8C98E; border-radius: 6px; padding: 14px 16px; }
-
-.modo-aviso {
-  background: #FBF0DC;
-  border: 1px solid #E8C98E;
-  border-radius: 6px;
-  padding: 12px 16px;
-  font-size: 0.9rem;
-  color: #7A4F00;
-  margin-bottom: 16px;
-}
+.resumen-nota { margin-top: 20px; font-size: 0.88rem; color: var(--texto-suave); background: var(--aviso-fondo); border: 1px solid var(--aviso-borde); border-radius: var(--radio-campo); padding: 12px 16px; }
 
 @media (max-width: 600px) {
   .kpis-grid { grid-template-columns: 1fr; }

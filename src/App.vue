@@ -1,44 +1,25 @@
 <template>
-  <div class="app-layout">
-    <Sidebar :abierto="sidebarAbierto" @cerrar="sidebarAbierto = false" />
-    <div class="overlay" :class="{ visible: sidebarAbierto && esMovil }" @click="sidebarAbierto = false"></div>
-
-    <main class="app-main">
-      <Navbar @toggle-menu="sidebarAbierto = !sidebarAbierto" />
-      <div class="app-content">
-        <AlertaGlobal />
-        <router-view v-slot="{ Component }">
-          <transition name="fade" mode="out-in">
-            <component :is="Component" />
-          </transition>
-        </router-view>
-      </div>
-    </main>
-  </div>
+  <component :is="layoutActual">
+    <AlertaGlobal />
+    <router-view v-slot="{ Component }">
+      <transition name="fade" mode="out-in">
+        <component :is="Component" />
+      </transition>
+    </router-view>
+  </component>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { inject } from 'vue'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 
-import Sidebar from './components/layout/Sidebar.vue'
-import Navbar from './components/layout/Navbar.vue'
+import AppLayout from './components/layout/AppLayout.vue'
+import PublicLayout from './components/layout/PublicLayout.vue'
 import AlertaGlobal from './components/AlertaGlobal.vue'
 
-const auth = inject('auth')
-const router = useRouter()
-const sidebarAbierto = ref(false)
+const route = useRoute()
 
-const esMovil = computed(() => window.innerWidth <= 900)
-
-onMounted(() => {
-  window.addEventListener('resize', () => {
-    if (esMovil.value && sidebarAbierto.value) sidebarAbierto.value = false
-  })
-})
-
-const esAdmin = computed(() => auth && auth.rol === 'administrador')
+const layoutActual = computed(() => (route.meta.publica ? PublicLayout : AppLayout))
 </script>
 
 <style>
