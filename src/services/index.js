@@ -9,6 +9,7 @@
 
 import { supabase, tieneSupabase } from '../supabase/client'
 import datosPrueba from '../mocks/datosPrueba'
+import { cargarDatosPeriodo, mesActualClave } from './kpi'
 
 const SIMULADO = !tieneSupabase
 
@@ -687,62 +688,37 @@ export const actividadesService = {
 }
 
 // ---------- Estadísticas / KPI ----------
+// Cálculos delegados en ../services/kpi.js (única fuente de cálculo).
 
 export const estadisticasService = {
   async resumen() {
-    const registros = await this.registros()
-    const tareas = await this.tareas()
-    const actividades = await this.actividades()
-    const entregas = await this.entregas()
-
-    const recuperadoMes = registros
-      .filter((r) => r.estado === 'activo')
-      .reduce((suma, r) => suma + Number(r.cantidadKg || 0), 0)
-
-    const totalResiduos = registros.filter((r) => r.estado === 'activo').length
-    const correctamenteSeparados = registros.filter(
-      (r) => r.estado === 'activo' && r.tipoResiduo !== 'tr-6'
-    ).length
-    const porcentajeSeparados =
-      totalResiduos > 0 ? Math.round((correctamenteSeparados / totalResiduos) * 100) : null
-
-    const tareasTotal = tareas.length
-    const tareasTiempo = tareas.filter((t) => t.estado === 'completada').length
-    const porcentajeTareas =
-      tareasTotal > 0 ? Math.round((tareasTiempo / tareasTotal) * 100) : null
-
-    const participantesTotal = actividades.reduce((suma, a) => suma + Number(a.participantes || 0), 0)
-    const totalEstudiantesReferencia = 40 // referencia del curso seleccionado (documento KPI)
-    const porcentajeParticipacion =
-      totalEstudiantesReferencia > 0
-        ? Math.round((participantesTotal / totalEstudiantesReferencia) * 100)
-        : null
-
-    const kgEntregados = entregas
-      .filter((e) => e.estado === 'completada' && e.pesoTotalKg)
-      .reduce((suma, e) => suma + Number(e.pesoTotalKg), 0)
-
+    const datos = await cargarDatosPeriodo(mesActualClave())
+    if (!datos.exito) {
+      return respuesta(null, { message: datos.error || 'No se pudieron cargar los indicadores.' }, SIMULADO)
+    }
+    const kpi = (id) => datos.kpis.find((k) => k.id === id) || {}
+    const r = kpi('kg').resultado
     return {
       datos: {
-        recuperadoKgMes: recuperadoMes,
+        recuperadoKgMes: r,
         metaRecuperado: 20,
-        cumplimientoRecuperado: recuperadoMes >= 20,
-        porcentajeSeparados,
+        cumplimientoRecuperado: kpi('kg').cumplido,
+        porcentajeSeparados: kpi('separacion').resultado,
         metaSeparados: 80,
-        cumplimientoSeparados: porcentajeSeparados != null && porcentajeSeparados >= 80,
-        porcentajeTareas,
+        cumplimientoSeparados: kpi('separacion').cumplido,
+        porcentajeTareas: kpi('tareas').resultado,
         metaTareas: 90,
-        cumplimientoTareas: porcentajeTareas != null && porcentajeTareas >= 90,
-        porcentajeParticipacion,
+        cumplimientoTareas: kpi('tareas').cumplido,
+        porcentajeParticipacion: kpi('participacion').resultado,
         metaParticipacion: 70,
-        cumplimientoParticipacion: porcentajeParticipacion != null && porcentajeParticipacion >= 70,
-        kgEntregados,
-        totalRegistros: totalResiduos,
-        totalTareas: tareasTotal,
+        cumplimientoParticipacion: kpi('participacion').cumplido,
+        kgEntregados: datos.kgEntregados,
+        totalRegistros: datos.registrosPeriodo.length,
+        totalTareas: datos.tareasPeriodo.length,
       },
-      simulado: SIMULADO,
-      error: null,
+      simulado: datos.simulado,
       exito: true,
+      error: null,
     }
   },
 

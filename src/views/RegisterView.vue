@@ -73,7 +73,7 @@
       </div>
 
       <div class="acceso-lateral">
-        <img class="acceso-imagen" src="/img/reciclaje2.webp" alt="Vecinos cargando bolsones de materiales reciclables durante una entrega comunitaria" loading="lazy" />
+        <img class="acceso-imagen" src="/img/trama-reciclaje2.webp" alt="Vecinos cargando bolsones de materiales reciclables durante una entrega comunitaria" loading="lazy" />
         <h2>Tu participación empieza con un dato y crece con cada acción compartida.</h2>
         <p class="acceso-nota">Tus datos se usan únicamente para coordinar actividades dentro de Cooperativa Trama.</p>
       </div>

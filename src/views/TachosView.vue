@@ -20,7 +20,7 @@
     <div class="contenido-doble tarjetas-superiores">
       <div class="card puntos-card">
         <h2>Puntos de separación</h2>
-        <img class="puntos-foto" src="/img/tachos.webp" alt="Tachos de colores para separar residuos: amarillo, verde y azul" loading="lazy" />
+        <img class="puntos-foto" src="/img/trama-tachos.webp" alt="Tachos de colores para separar residuos: amarillo, verde y azul" loading="lazy" />
         <ul class="puntos-lista">
           <li v-for="t in tachos.slice(0, 4)" :key="t.id">
             {{ t.nombre }} <span class="punto-detalle">· {{ t.ubicacion }} · {{ t.activo ? 'Operativo' : 'Sin operar' }}</span>

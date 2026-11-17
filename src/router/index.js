@@ -5,6 +5,8 @@ const HomeView = () => import('../views/HomeView.vue')
 const LoginView = () => import('../views/LoginView.vue')
 const RegisterView = () => import('../views/RegisterView.vue')
 const PanelView = () => import('../views/PanelView.vue')
+const TableroView = () => import('../views/TableroView.vue')
+const InformeView = () => import('../views/InformeView.vue')
 const UsuariosView = () => import('../views/UsuariosView.vue')
 const ComisionesView = () => import('../views/ComisionesView.vue')
 const TareasView = () => import('../views/TareasView.vue')
@@ -28,6 +30,8 @@ export default [
   { path: '/registro', name: 'registro', component: RegisterView, meta: { publica: true, soloVisitantes: true } },
 
   { path: '/panel', name: 'panel', component: PanelView, meta: { requiereAuth: true } },
+  { path: '/tablero', name: 'tablero', component: TableroView, meta: { requiereAuth: true } },
+  { path: '/informe', name: 'informe', component: InformeView, meta: { requiereAuth: true } },
   { path: '/usuarios', name: 'usuarios', component: UsuariosView, meta: { requiereAuth: true, rol: 'administrador' } },
   { path: '/comisiones', name: 'comisiones', component: ComisionesView, meta: { requiereAuth: true } },
   { path: '/tareas', name: 'tareas', component: TareasView, meta: { requiereAuth: true } },

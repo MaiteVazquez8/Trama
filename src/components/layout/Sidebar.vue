@@ -54,37 +54,49 @@ defineProps({
 const emit = defineEmits(['cerrar'])
 
 const esAdmin = computed(() => auth && auth.rol === 'administrador')
+const comision = computed(() => (auth && auth.comision) || null)
+const puedeVerSeguimiento = computed(() =>
+  esAdmin.value || ['com-1', 'com-4'].includes(comision.value)
+)
 
 const rutaActualNombre = computed(() => router.currentRoute.value.name)
 
-const items = [
-  { ruta: 'panel', label: 'Panel' },
-  { ruta: 'usuarios', label: 'Usuarios', admin: true },
-  { ruta: 'comisiones', label: 'Comisiones' },
-  { ruta: 'tareas', label: 'Tareas' },
-  { ruta: 'residuo-nuevo', label: 'Residuos' },
-  { ruta: 'historial-residuos', label: 'Historial' },
-  { ruta: 'estadisticas', label: 'Estadísticas' },
-  { ruta: 'tachos', label: 'Tachos' },
-  { ruta: 'campañas', label: 'Campañas' },
-  { ruta: 'reuniones', label: 'Reuniones' },
-  { ruta: 'acuerdos', label: 'Acuerdos' },
-  { ruta: 'entregas', label: 'Entregas' },
-  { ruta: 'perfil', label: 'Perfil' },
-  { ruta: 'configuracion', label: 'Configuración', admin: true },
-]
+const items = computed(() => {
+  const base = [
+    { ruta: 'panel', label: 'Panel' },
+    { ruta: 'tablero', label: 'Tablero', seguimiento: true },
+    { ruta: 'informe', label: 'Informe', seguimiento: true },
+    { ruta: 'usuarios', label: 'Usuarios', admin: true },
+    { ruta: 'comisiones', label: 'Comisiones' },
+    { ruta: 'tareas', label: 'Tareas' },
+    { ruta: 'residuo-nuevo', label: 'Residuos' },
+    { ruta: 'historial-residuos', label: 'Historial' },
+    { ruta: 'estadisticas', label: 'Estadísticas' },
+    { ruta: 'tachos', label: 'Tachos' },
+    { ruta: 'campañas', label: 'Campañas' },
+    { ruta: 'reuniones', label: 'Reuniones' },
+    { ruta: 'acuerdos', label: 'Acuerdos' },
+    { ruta: 'entregas', label: 'Entregas' },
+    { ruta: 'perfil', label: 'Perfil' },
+    { ruta: 'configuracion', label: 'Configuración', admin: true },
+  ]
+  return base.filter((item) => {
+    if (item.admin && !esAdmin.value) return false
+    if (item.seguimiento && !puedeVerSeguimiento.value) return false
+    return true
+  })
+})
 
-const itemsVisibles = computed(() => items.filter((item) => !item.admin || esAdmin.value))
-
-// Agrupación de enlaces como en el mock (líneas de tres enlaces)
+// Agrupación de enlaces como en el mock original (líneas de hasta tres enlaces)
 const gruposVisibles = computed(() => {
-  const visibles = itemsVisibles.value
+  const visibles = items.value
   const grupos = [
-    ['panel', 'usuarios', 'comisiones'],
-    ['tareas', 'residuo-nuevo', 'historial-residuos'],
-    ['estadisticas', 'tachos', 'campañas'],
-    ['reuniones', 'acuerdos', 'entregas'],
-    ['perfil', 'configuracion'],
+    ['panel', 'tablero', 'informe'],
+    ['usuarios', 'comisiones', 'tareas'],
+    ['residuo-nuevo', 'historial-residuos', 'estadisticas'],
+    ['tachos', 'campañas', 'reuniones'],
+    ['acuerdos', 'entregas', 'perfil'],
+    ['configuracion'],
   ]
   return grupos
     .map((grupo) => grupo.map((ruta) => visibles.find((i) => i.ruta === ruta)).filter(Boolean))
@@ -93,6 +105,8 @@ const gruposVisibles = computed(() => {
 
 const etiquetas = {
   panel: 'Panel principal',
+  tablero: 'Tablero de seguimiento',
+  informe: 'Informe de seguimiento',
   usuarios: 'Usuarios',
   comisiones: 'Comisiones',
   tareas: 'Tareas',
@@ -115,7 +129,7 @@ const etiquetas = {
 const rutaActual = computed(() => {
   const nombre = rutaActualNombre.value
   const label = etiquetas[nombre] || 'Panel principal'
-  const ruta = itemsVisibles.value.some((i) => i.ruta === nombre)
+  const ruta = items.value.some((i) => i.ruta === nombre)
     ? nombre
     : ({ 'tarea-nuevo': 'tareas', 'tarea-editar': 'tareas', 'residuo-nuevo': 'residuo-nuevo', 'residuo-editar': 'historial-residuos' }[nombre] || 'panel')
   return { label, ruta }
@@ -135,8 +149,8 @@ function ir(ruta) {
 
 async function cerrarSesion() {
   try {
-    const { services } = await import('@/services')
-    await services.authService.logout()
+    const modulo = await import('@/services')
+    await modulo.authService.logout()
   } catch (e) {
     // Se ignora: igualmente se vuelve al login.
   }

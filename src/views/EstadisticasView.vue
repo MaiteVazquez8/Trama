@@ -24,7 +24,7 @@
     <div class="contenido-doble tarjetas-superiores">
       <figure class="card evolucion-card">
         <h2>Evolución mensual</h2>
-        <img class="evolucion-foto" src="/img/reciclaje.jpeg" alt="Latas y botellas de vidrio y plástico recolectadas por la cooperativa" loading="lazy" />
+        <img class="evolucion-foto" src="/img/trama-reciclaje.jpeg" alt="Latas y botellas de vidrio y plástico recolectadas por la cooperativa" loading="lazy" />
         <figcaption>{{ mesAnioActual }} · Todos los materiales · Toda la institución</figcaption>
       </figure>
 
@@ -50,15 +50,17 @@
         </div>
 
         <table class="tabla-ficha">
-          <tr><td>Categoría</td><td>{{ k.categoria }}</td></tr>
-          <tr><td>Objetivo relacionado</td><td>{{ k.objetivo }}</td></tr>
-          <tr><td>Fórmula de cálculo</td><td>{{ k.formula }}</td></tr>
-          <tr><td>Unidad de medida</td><td>{{ k.unidad }}</td></tr>
-          <tr><td>Meta y plazo</td><td>{{ k.plazo }}</td></tr>
-          <tr><td>Fuente de datos</td><td>{{ k.fuente }}</td></tr>
-          <tr><td>Frecuencia de revisión</td><td>{{ k.frecuencia }}</td></tr>
-          <tr><td>Responsable</td><td>{{ k.responsable }}</td></tr>
-          <tr><td>Interpretación</td><td>{{ k.interpretacion }}</td></tr>
+          <tbody>
+            <tr><td>Categoría</td><td>{{ k.categoria }}</td></tr>
+            <tr><td>Objetivo relacionado</td><td>{{ k.objetivo }}</td></tr>
+            <tr><td>Fórmula de cálculo</td><td>{{ k.formula }}</td></tr>
+            <tr><td>Unidad de medida</td><td>{{ k.unidad }}</td></tr>
+            <tr><td>Meta y plazo</td><td>{{ k.plazo }}</td></tr>
+            <tr><td>Fuente de datos</td><td>{{ k.fuente }}</td></tr>
+            <tr><td>Frecuencia de revisión</td><td>{{ k.frecuencia }}</td></tr>
+            <tr><td>Responsable</td><td>{{ k.responsable }}</td></tr>
+            <tr><td>Interpretación</td><td>{{ k.interpretacion }}</td></tr>
+          </tbody>
         </table>
 
         <div class="nota" v-if="k.nota">{{ k.nota }}</div>
@@ -141,7 +143,7 @@ onMounted(async () => {
           plazo: 'Alcanzar al menos 20 kg mensuales durante los próximos dos meses.',
           fuente: 'Planillas de pesaje y registros de clasificación.',
           frecuencia: 'Mensual.',
-          responsable: 'Comisión de recolección y clasificación, con apoyo de administración.',
+          responsable: 'Comisión de Registro, con apoyo de la Comisión de Organización.',
           interpretacion: 'Conviene que el valor aumente hasta alcanzar la meta, siempre que los materiales estén correctamente clasificados.',
           nota: `Resultado: ${d.recuperadoKgMes.toFixed(1)} kg. Meta: 20 kg. ${d.cumplimientoRecuperado ? 'Se cumple el objetivo mensual.' : 'No se cumple el objetivo.'}`,
           estadoTexto: d.cumplimientoRecuperado ? 'Cumplido' : 'No cumplido',
@@ -157,7 +159,7 @@ onMounted(async () => {
           plazo: 'Alcanzar al menos el 80 % al finalizar los próximos dos meses.',
           fuente: 'Registros de revisión de los recipientes señalizados.',
           frecuencia: 'Semanal, con evaluación mensual.',
-          responsable: 'Comisión de recolección y clasificación.',
+          responsable: 'Comisión de Registro, con apoyo de la Comisión de Mantenimiento.',
           interpretacion: 'Conviene que el porcentaje aumente hasta alcanzar o superar el 80 %.',
           nota: d.porcentajeSeparados != null
             ? `Resultado: ${d.porcentajeSeparados} %. Meta: 80 %. ${d.cumplimientoSeparados ? 'Se cumple el objetivo.' : 'No se cumple el objetivo.'}`
@@ -175,7 +177,7 @@ onMounted(async () => {
           plazo: 'Cumplir al menos el 90 % de las tareas programadas cada mes.',
           fuente: 'Cronograma de actividades y planillas de seguimiento.',
           frecuencia: 'Semanal, con evaluación mensual.',
-          responsable: 'Comisión de coordinación y comisión de recolección y clasificación.',
+          responsable: 'Comisión de Organización, con apoyo de la Comisión de Registro.',
           interpretacion: 'Conviene que el porcentaje aumente hasta alcanzar o superar el 90 %.',
           nota: d.porcentajeTareas != null
             ? `Resultado: ${d.porcentajeTareas} %. Meta: 90 %. ${d.cumplimientoTareas ? 'Se cumple el objetivo.' : 'No se cumple el objetivo.'}`
@@ -193,7 +195,7 @@ onMounted(async () => {
           plazo: 'Alcanzar al menos el 70 % de participación al finalizar los próximos dos meses.',
           fuente: 'Listas de participación y registros de las actividades.',
           frecuencia: 'Mensual.',
-          responsable: 'Comisión de comunicación y comisión de coordinación.',
+          responsable: 'Comisión de Concientización, con apoyo de la Comisión de Organización.',
           interpretacion: 'Conviene que el porcentaje aumente hasta alcanzar o superar el 70 %.',
           nota: d.porcentajeParticipacion != null
             ? `Resultado: ${d.porcentajeParticipacion} %. Meta: 70 %. ${d.cumplimientoParticipacion ? 'Se cumple el objetivo.' : 'No se cumple el objetivo.'}`

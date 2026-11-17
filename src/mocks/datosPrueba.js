@@ -14,13 +14,21 @@ const mesActual = ahora.getMonth()
 const añoActual = ahora.getFullYear()
 
 function fecha(diasDesplazamiento = 0) {
-  const f = new Date(añoActual, mesActual, 1 + diasDesplazamiento)
+  const f = new Date()
+  f.setDate(f.getDate() + diasDesplazamiento)
   return f.toISOString().split('T')[0]
 }
 
 function fechaHora(diasDesplazamiento = 0, horas = 10) {
-  const f = new Date(añoActual, mesActual, 1 + diasDesplazamiento, horas, 30, 0)
+  const f = new Date()
+  f.setDate(f.getDate() + diasDesplazamiento)
+  f.setHours(horas, 30, 0, 0)
   return f.toISOString()
+}
+
+function fechaMesAnterior(mesesAtras, dia) {
+  const f = new Date(añoActual, mesActual - mesesAtras, dia)
+  return f.toISOString().split('T')[0]
 }
 
 export const TIPOS_RESIDUO = [
@@ -64,6 +72,14 @@ export const REGISTROS_RESIDUO = [
   { id: 'rr-6', tipoResiduo: 'tr-2', cantidadKg: 7.5, lugar: 'Pasillo planta baja', fecha: fecha(0), registradoPor: 'pf-2', estado: 'activo', creadoEn: fechaHora(0) },
   { id: 'rr-7', tipoResiduo: 'tr-1', cantidadKg: 4.0, lugar: 'Patio central', fecha: fecha(-10), registradoPor: 'pf-2', estado: 'cancelado', creadoEn: fechaHora(-10), canceladoEn: fechaHora(-8), motivoCancelacion: 'Registro duplicado por error de captura' },
   { id: 'rr-8', tipoResiduo: 'tr-5', cantidadKg: 2.5, lugar: 'Comedor', fecha: fecha(-6), registradoPor: 'pf-2', estado: 'activo', creadoEn: fechaHora(-6) },
+  // --- Historial SIMULADO de meses anteriores (solo modo desarrollo; no son mediciones reales) ---
+  { id: 'rr-9', tipoResiduo: 'tr-1', cantidadKg: 9.0, lugar: 'Patio central', fecha: fechaMesAnterior(2, 3), registradoPor: 'pf-2', estado: 'activo', creadoEn: fechaHora(-70) },
+  { id: 'rr-10', tipoResiduo: 'tr-2', cantidadKg: 6.5, lugar: 'Pasillo planta baja', fecha: fechaMesAnterior(2, 11), registradoPor: 'pf-2', estado: 'activo', creadoEn: fechaHora(-62) },
+  { id: 'rr-11', tipoResiduo: 'tr-4', cantidadKg: 2.0, lugar: 'Taller escolar', fecha: fechaMesAnterior(2, 18), registradoPor: 'pf-2', estado: 'activo', creadoEn: fechaHora(-55) },
+  { id: 'rr-12', tipoResiduo: 'tr-1', cantidadKg: 11.0, lugar: 'Patio central', fecha: fechaMesAnterior(1, 5), registradoPor: 'pf-2', estado: 'activo', creadoEn: fechaHora(-33) },
+  { id: 'rr-13', tipoResiduo: 'tr-2', cantidadKg: 9.5, lugar: 'Pasillo planta baja', fecha: fechaMesAnterior(1, 12), registradoPor: 'pf-2', estado: 'activo', creadoEn: fechaHora(-26) },
+  { id: 'rr-14', tipoResiduo: 'tr-3', cantidadKg: 4.0, lugar: 'Kiosco', fecha: fechaMesAnterior(1, 16), registradoPor: 'pf-2', estado: 'activo', creadoEn: fechaHora(-22) },
+  { id: 'rr-15', tipoResiduo: 'tr-5', cantidadKg: 3.5, lugar: 'Comedor', fecha: fechaMesAnterior(1, 20), registradoPor: 'pf-2', estado: 'activo', creadoEn: fechaHora(-18) },
 ]
 
 export const TAREAS = [
@@ -72,6 +88,13 @@ export const TAREAS = [
   { id: 'ta-3', titulo: 'Campaña de concientización en cursos', descripcion: 'Explicar el funcionamiento de los tachos en 3 cursos.', comision: 'com-2', responsable: 'pf-2', fecha: fecha(-1), estado: 'completada', creadoEn: fechaHora(-10) },
   { id: 'ta-4', titulo: 'Coordinar entrega a cooperativa externa', descripcion: 'Acordar día de retiro de materiales acumulados.', comision: 'com-5', responsable: 'pf-4', fecha: fecha(10), estado: 'pendiente', creadoEn: fechaHora(-2) },
   { id: 'ta-5', titulo: 'Reparar cartel del tacho de plásticos', descripcion: 'El cartel está roto; reimprimir y colocar.', comision: 'com-3', responsable: 'pf-3', fecha: fecha(-8), estado: 'cancelada', creadoEn: fechaHora(-15), canceladoEn: fechaHora(-12), motivoCancelacion: 'Se resolvió con cartel de repuesto' },
+  // --- Historial SIMULADO de meses anteriores (solo modo desarrollo; no son datos reales) ---
+  { id: 'ta-6', titulo: 'Pesaje de residuos de septiembre', descripcion: 'Control mensual de materiales recuperados.', comision: 'com-4', responsable: 'pf-2', fecha: fechaMesAnterior(2, 28), estado: 'completada', creadoEn: fechaHora(-75) },
+  { id: 'ta-7', titulo: 'Recorrida de tachos del patio', descripcion: 'Verificación quincenal de ubicación y cartelería.', comision: 'com-3', responsable: 'pf-3', fecha: fechaMesAnterior(2, 21), estado: 'completada', creadoEn: fechaHora(-70) },
+  { id: 'ta-8', titulo: 'Registro mensual de septiembre', descripcion: 'Consolidar los pesajes y registros del mes.', comision: 'com-4', responsable: 'pf-2', fecha: fechaMesAnterior(2, 14), estado: 'completada', creadoEn: fechaHora(-68) },
+  { id: 'ta-9', titulo: 'Pesaje de residuos de octubre', descripcion: 'Control mensual de materiales recuperados.', comision: 'com-4', responsable: 'pf-2', fecha: fechaMesAnterior(1, 25), estado: 'completada', creadoEn: fechaHora(-35) },
+  { id: 'ta-10', titulo: 'Mantenimiento de tachos de pasillos', descripcion: 'Ajuste de ubicación y carteles de pasillos.', comision: 'com-3', responsable: 'pf-3', fecha: fechaMesAnterior(1, 18), estado: 'completada', creadoEn: fechaHora(-30) },
+  { id: 'ta-11', titulo: 'Charla de concientización en 5B', descripcion: 'Explicación del sistema de separación.', comision: 'com-2', responsable: 'pf-4', fecha: fechaMesAnterior(1, 9), estado: 'pendiente', creadoEn: fechaHora(-25) },
 ]
 
 export const CAMPANIAS = [
@@ -102,6 +125,8 @@ export const PROBLEMAS_TACHO = [
 export const ACTIVIDADES = [
   { id: 'ac-1', titulo: 'Taller de separación en 5°A', tipo: 'concientizacion', fecha: fecha(-12), participantes: 25, creadoPor: 'pf-4', creadoEn: fechaHora(-14) },
   { id: 'ac-2', titulo: 'Recolección semanal del patio', tipo: 'recoleccion', fecha: fecha(-5), participantes: 4, creadoPor: 'pf-2', creadoEn: fechaHora(-7) },
+  { id: 'ac-3', titulo: 'Taller de separación en 4A (septiembre)', tipo: 'concientizacion', fecha: fechaMesAnterior(2, 19), participantes: 22, creadoPor: 'pf-4', creadoEn: fechaHora(-66) },
+  { id: 'ac-4', titulo: 'Jornada de recuperación de octubre', tipo: 'recoleccion', fecha: fechaMesAnterior(1, 15), participantes: 12, creadoPor: 'pf-2', creadoEn: fechaHora(-30) },
 ]
 
 export default {

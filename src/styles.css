@@ -950,3 +950,56 @@ tr:hover td {
   font-size: 0.9rem;
   color: var(--texto-suave);
 }
+
+/* -----------------------------------------------
+   Impresi�n / PDF (informe de seguimiento)
+   ----------------------------------------------- */
+.informe-documento { max-width: 880px; margin: 0 auto; }
+
+@media print {
+  @page { size: A4; margin: 14mm; }
+
+  html, body { background: #FFFFFF !important; color: #000 !important; }
+
+  /* Ocultar toda la navegaci�n y los controles */
+  .app-sidebar,
+  .overlay,
+  .mobile-topbar,
+  .mobile-topbar-links,
+  .vista-encabezado,
+  .vista-encabezado-accion,
+  .tablero-controles,
+  .no-print,
+  .btn,
+  button {
+    display: none !important;
+  }
+
+  .app-content, .app-main { display: block !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
+  .app-layout { display: block !important; }
+
+  /* El documento del informe s� se imprime */
+  .informe-documento { max-width: none !important; margin: 0 !important; }
+  .informe-documento section,
+  .informe-documento .card,
+  .informe-documento table,
+  .informe-documento figure,
+  .informe-documento tr,
+  .informe-documento li {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+  .informe-documento h1,
+  .informe-documento h2,
+  .informe-documento h3 { break-after: avoid !important; page-break-after: avoid !important; }
+  .informe-documento h2 { font-size: 1.05rem !important; }
+  .informe-documento h1 { font-size: 1.4rem !important; }
+  .informe-documento .kpi-tabla { width: 100% !important; font-size: 8.5pt !important; }
+  .informe-documento .banner-simulado {
+    background: #FFF !important;
+    color: #000 !important;
+    border: 1.5pt solid #000 !important;
+    font-weight: 800 !important;
+    font-size: 9pt !important;
+  }
+}

@@ -2,9 +2,7 @@
   <component :is="layoutActual">
     <AlertaGlobal />
     <router-view v-slot="{ Component }">
-      <transition name="fade" mode="out-in">
-        <component :is="Component" />
-      </transition>
+      <component :is="Component" />
     </router-view>
   </component>
 </template>
@@ -21,12 +19,3 @@ const route = useRoute()
 
 const layoutActual = computed(() => (route.meta.publica ? PublicLayout : AppLayout))
 </script>
-
-<style>
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-.fade-enter-from, .fade-leave-to {
-  opacity: 0;
-}
-</style>

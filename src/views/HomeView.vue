@@ -79,7 +79,7 @@
         <p>Papel y cartón · Plásticos · Metales · Vidrio. Una buena clasificación mejora la recuperación.</p>
       </div>
       <figure class="fila-foto">
-        <img src="/img/separando.jpg" alt="Tachos de colores con materiales separados: botellas, latas, papel y metal" loading="lazy" />
+        <img src="/img/trama-separando.jpg" alt="Tachos de colores con materiales separados: botellas, latas, papel y metal" loading="lazy" />
       </figure>
     </section>
 
@@ -103,7 +103,7 @@
         <p>Estudiantes impulsan, docentes integran, familias acompañan y equipos de gestión facilitan.</p>
       </div>
       <figure class="fila-foto">
-        <img src="/img/reciclaje3.jpg" alt="Persona clasificando cartón y vidrio sobre una tarima de madera" loading="lazy" />
+        <img src="/img/trama-reciclaje3.jpg" alt="Persona clasificando cartón y vidrio sobre una tarima de madera" loading="lazy" />
       </figure>
     </section>
 
@@ -115,7 +115,7 @@
         <p>Coordinamos retiros respetando criterios de recepción y visibilizando el valor social del trabajo.</p>
       </div>
       <figure class="fila-foto">
-        <img src="/img/residuos.webp" alt="Materiales reciclables acopiados a la espera del retiro de la cooperativa" loading="lazy" />
+        <img src="/img/trama-residuos.webp" alt="Materiales reciclables acopiados a la espera del retiro de la cooperativa" loading="lazy" />
       </figure>
     </section>
 

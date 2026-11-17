@@ -65,12 +65,38 @@ export const seleccionValida = (valor, campo = 'La selección') => {
 
 /* Valida un formulario completo.
    `reglas` es un objeto { campo: [funcionValidacion, ...] }
-   Devuelve { valido: boolean, errores: { campo: mensaje } } */
+   Devuelve { valido: boolean, errores: { campo: mensaje } }
+
+   Cada función de validación recibe (valor, etiqueta). Antes se pasaba el objeto
+   `datos` completo como segundo argumento, y como las funciones esperan ahí el
+   NOMBRE del campo, los mensajes salían como "[object Object] es obligatorio.".
+   Mapa de etiquetas en español para que los mensajes sean legibles. */
+const ETIQUETAS = {
+  tipoResiduo: 'El tipo de residuo',
+  cantidadKg: 'El peso (kg)',
+  lugar: 'El origen',
+  fecha: 'La fecha',
+  correo: 'El correo electrónico',
+  email: 'El correo electrónico',
+  password: 'La contraseña',
+  titulo: 'El título',
+  descripcion: 'La descripción',
+  responsable: 'El responsable',
+  comision: 'La comisión',
+  tema: 'El tema',
+  participantes: 'La cantidad de participantes',
+  nombre: 'El nombre',
+  ubicacion: 'La ubicación',
+  materiales: 'Los materiales',
+  fechaPrevista: 'La fecha prevista',
+}
+
 export function validar(datos, reglas) {
   const errores = {}
   for (const campo in reglas) {
+    const etiqueta = ETIQUETAS[campo] || campo
     for (const regla of reglas[campo]) {
-      const mensaje = regla(datos[campo], datos)
+      const mensaje = regla(datos[campo], etiqueta)
       if (mensaje) {
         errores[campo] = mensaje
         break

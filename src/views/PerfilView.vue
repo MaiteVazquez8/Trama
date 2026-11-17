@@ -18,7 +18,7 @@
     <div class="contenido-doble">
       <form id="perfil-form" class="card perfil-card" @submit.prevent="guardarCambios">
         <div class="perfil-identidad">
-          <img class="perfil-avatar" src="/img/perfil.png" :alt="`Avatar de ${usuario.nombre || 'usuario'}`" />
+          <img class="perfil-avatar" src="/img/trama-perfil.png" :alt="`Avatar de ${usuario.nombre || 'usuario'}`" />
           <div>
             <h2>{{ usuario.nombre }}</h2>
             <p class="perfil-rol">{{ rolLegible(usuario.rol) }} · {{ usuario.activo === false ? 'Inactivo' : 'Miembro activo' }}</p>
